@@ -118,7 +118,7 @@ if Config.longhorn_enabled
 
               it "can validate the app config via https and domain [#{Config.domain}]" do
                 wait_until(30,5) {
-                  response = https_get("https://#{@name}.#{Config.domain}/config")
+                  response = https_testing_get("https://#{@name}.#{Config.domain}/config")
                   expect(response).to_not be_nil
                   expect(response.code).to eq(200)
                   expect(response.headers[:content_type]).to include('application/x-yaml')
@@ -128,14 +128,14 @@ if Config.longhorn_enabled
 
               context 'with files created on the persistent volume' do
                 before(:all) do
-                  response = https_patch("https://#{@name}.#{Config.domain}/greet/howdy", "")
+                  response = https_testing_patch("https://#{@name}.#{Config.domain}/greet/howdy", "")
                   expect(response.code).to eq(202)
                 end
 
                 it "can serve files from the persistent volume" do
                   wait_until(30,5) {
                     for file_suffix in 0..10 do
-                      response = https_get("https://#{@name}.#{Config.domain}/static/greet-#{file_suffix}.txt")
+                      response = https_testing_get("https://#{@name}.#{Config.domain}/static/greet-#{file_suffix}.txt")
                       expect(response).to_not be_nil
                       expect(response.code).to eq(200)
                       expect(response.headers[:content_type]).to include('text/plain')

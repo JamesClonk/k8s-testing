@@ -1,6 +1,0 @@
----
-# k8s domain name
-domain: k8s.my-domain.com
-
-# random deployment/app names
-random_names: true

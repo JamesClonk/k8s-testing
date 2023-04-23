@@ -75,6 +75,55 @@ module Config
     @@config['longhorn']['enabled']
   end
 
+  def self.backman_enabled
+    return true if @@config['backman'] == nil
+    return true if @@config['backman']['enabled'] == nil
+    return true if @@config['backman']['enabled'].to_s.empty?
+    @@config['backman']['enabled']
+  end
+
+  def self.home_info_enabled
+    return true if @@config['home_info'] == nil
+    return true if @@config['home_info']['enabled'] == nil
+    return true if @@config['home_info']['enabled'].to_s.empty?
+    @@config['home_info']['enabled']
+  end
+
+  def self.irvisualizer_enabled
+    return true if @@config['irvisualizer'] == nil
+    return true if @@config['irvisualizer']['enabled'] == nil
+    return true if @@config['irvisualizer']['enabled'].to_s.empty?
+    @@config['irvisualizer']['enabled']
+  end
+
+  def self.jcio_enabled
+    return true if @@config['jcio'] == nil
+    return true if @@config['jcio']['enabled'] == nil
+    return true if @@config['jcio']['enabled'].to_s.empty?
+    @@config['jcio']['enabled']
+  end
+
+  def self.resume_enabled
+    return true if @@config['resume'] == nil
+    return true if @@config['resume']['enabled'] == nil
+    return true if @@config['resume']['enabled'].to_s.empty?
+    @@config['resume']['enabled']
+  end
+
+  def self.repo_mirrorer_enabled
+    return true if @@config['repo_mirrorer'] == nil
+    return true if @@config['repo_mirrorer']['enabled'] == nil
+    return true if @@config['repo_mirrorer']['enabled'].to_s.empty?
+    @@config['repo_mirrorer']['enabled']
+  end
+
+  def self.image_puller_enabled
+    return true if @@config['image_puller'] == nil
+    return true if @@config['image_puller']['enabled'] == nil
+    return true if @@config['image_puller']['enabled'].to_s.empty?
+    @@config['image_puller']['enabled']
+  end
+
   def self.lets_encrypt_issuer
     return "lets-encrypt" if @@config['lets_encrypt'] == nil
     return "lets-encrypt" if @@config['lets_encrypt']['issuer'] == nil

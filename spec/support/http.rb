@@ -16,7 +16,7 @@ module HttpHelpers
     } 
   end
 
-  def https_get(url, args={})
+  def https_testing_get(url, args={})
     try_catch {
       if Config.lets_encrypt_staging
         args.merge!(ssl_ca_file: 'spec/support/letsencrypt-staging/static/certs/staging/letsencrypt-stg-root-x1.pem')
@@ -25,11 +25,23 @@ module HttpHelpers
     }
   end
 
-  def https_patch(url, body, args={})
+  def https_testing_patch(url, body, args={})
     try_catch {
       if Config.lets_encrypt_staging
         args.merge!(ssl_ca_file: 'spec/support/letsencrypt-staging/static/certs/staging/letsencrypt-stg-root-x1.pem')
       end
+      RestClient::Request.execute({ url: url, method: :patch, verify_ssl: true, payload: body }.merge(args))
+    }
+  end
+
+  def https_get(url, args={})
+    try_catch {
+      RestClient::Request.execute({ url: url, method: :get, verify_ssl: true }.merge(args))
+    }
+  end
+
+  def https_patch(url, body, args={})
+    try_catch {
       RestClient::Request.execute({ url: url, method: :patch, verify_ssl: true, payload: body }.merge(args))
     }
   end

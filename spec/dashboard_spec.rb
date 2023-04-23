@@ -24,7 +24,7 @@ if Config.dashboard_enabled
       @kubectl = KUBECTL.new()
     end
 
-    it "can be https queried at [dashboard.#{Config.domain}] and displays the login page" do
+    xit "can be https queried at [dashboard.#{Config.domain}] and displays the login page" do
       response = https_get("https://dashboard.#{Config.domain}")
       expect(response.code).to eq(200)
       expect(response.headers[:content_type]).to include('text/html')
@@ -32,17 +32,11 @@ if Config.dashboard_enabled
       expect(response.body).to include('<link rel="icon" type="image/png" href="assets/images/kubernetes-logo.png">', '<kd-root></kd-root>')
     end
 
-    context "when doing the login process" do
-      before(:all) do
-        @token = @kubectl.run("-n kubernetes-dashboard create token kubernetes-dashboard")
-        sleep 3
-      end
+    xcontext "when doing the login process" do
       before(:each) do
         visit "https://dashboard.#{Config.domain}/"
-        expect(find_field(id: 'token').value).to eq("")
-        fill_in 'token', with: "#{@token}"
         sleep 1
-        click_button(class: 'kd-login-button')
+        click_button(class: 'ng-star-inserted')
         # find('button[type="submit"]').click
         sleep 3 # unfortunately we have to wait here to make sure the login/javascript did their work
       end

@@ -23,11 +23,9 @@ jobs:
 
     - name: Setup configs
       env:
-        DEV_KUBECONFIG: ${{ secrets.DEV_KUBECONFIG }}
-        DEV_TESTING_CONFIG: ${{ secrets.DEV_TESTING_CONFIG }}
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
       run: |
-        echo "${DEV_KUBECONFIG}" > kubeconfig
-        echo "${DEV_TESTING_CONFIG}" > config.yml
+        echo "${KUBECONFIG}" > kubeconfig
 
     - name: Setup Chrome
       uses: ./.github/actions/setup-chrome

@@ -92,7 +92,7 @@ describe 'a kubernetes deployment', :deployment => true do
 
             it "can be https queried via domain [#{Config.domain}]" do
               wait_until(120,15) {
-                response = https_get("https://#{@name}.#{Config.domain}/ingress")
+                response = https_testing_get("https://#{@name}.#{Config.domain}/ingress")
                 expect(response).to_not be_nil
                 expect(response.code).to eq(200)
                 expect(response.headers[:content_type]).to include('text/html')
@@ -104,7 +104,7 @@ describe 'a kubernetes deployment', :deployment => true do
         else # no lets-encrypt, let's just try with HTTP
           it "can be http queried via domain [#{Config.domain}]" do
             wait_until(120,15) {
-              response = http_get("http://#{@name}.#{Config.domain}/ingress")
+              response = http_testing_get("http://#{@name}.#{Config.domain}/ingress")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('text/html')

@@ -13,13 +13,13 @@ describe 'kubectl', :client => true, :fast => true do
     expect(info).to include("CoreDNS is running")
   end
 
-  it 'can list namespaces' do
+  it 'can list all expected namespaces' do
     namespaces = kubectl.get_namespaces
     expect(namespaces).to_not be_nil
     expect(namespaces.count).to be > 1
 
     namespaces.map! { |namespace| namespace['metadata']['name'] }
-    expect(namespaces).to include("kube-system", "default")
+    expect(namespaces).to include("kube-system", "pgweb", "postgres", "oauth2-proxy")
     if Config.dashboard_enabled
       expect(namespaces).to include("kubernetes-dashboard")
     end
@@ -37,10 +37,30 @@ describe 'kubectl', :client => true, :fast => true do
     end
     if Config.loki_enabled
       expect(namespaces).to include("loki")
-      expect(namespaces).to include("promtail")
     end
     if Config.longhorn_enabled
       expect(namespaces).to include("longhorn-system")
+    end
+    if Config.backman_enabled
+      expect(namespaces).to include("backman")
+    end
+    if Config.home_info_enabled
+      expect(namespaces).to include("home-info")
+    end
+    if Config.irvisualizer_enabled
+      expect(namespaces).to include("irvisualizer")
+    end
+    if Config.jcio_enabled
+      expect(namespaces).to include("jcio")
+    end
+    if Config.resume_enabled
+      expect(namespaces).to include("resume")
+    end
+    if Config.repo_mirrorer_enabled
+      expect(namespaces).to include("repo-mirrorer")
+    end
+    if Config.image_puller_enabled
+      expect(namespaces).to include("image-puller")
     end
     expect(namespaces).to include(Config.namespace)
   end
