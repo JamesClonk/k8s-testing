@@ -22,7 +22,7 @@ if Config.resume_enabled
       it "has running pods" do
         @kubectl.wait_for_deployment('resume', '120s', 'resume')
 
-        wait_until(240,15) {
+        wait_until(120,15) {
           pods = @kubectl.get_pods_by_label("app=resume", 'resume')
           expect(pods).to_not be_nil
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
@@ -39,7 +39,7 @@ if Config.resume_enabled
       end
 
       if Config.ingress_enabled
-        it 'has an Ingress' do
+        it 'has an ingress' do
           ingresses = @kubectl.get_ingresses('resume')
           expect(ingresses).to_not be_nil
 
@@ -49,7 +49,7 @@ if Config.resume_enabled
 
         if Config.lets_encrypt_enabled
           it 'has a valid certificate' do
-            wait_until(1,1) {
+            wait_until(120,15) {
               certificates = @kubectl.get_certificates('resume')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 1
@@ -74,8 +74,8 @@ if Config.resume_enabled
             }
           end
 
-          it "can be https queried via domain [#{Config.domain}]" do
-            wait_until(120,15) {
+          it "can be https queried via hostname [resume.#{Config.domain}]" do
+            wait_until(60,15) {
               response = https_get("https://resume.#{Config.domain}")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)

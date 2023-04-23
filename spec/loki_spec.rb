@@ -77,7 +77,7 @@ if Config.loki_enabled
           expect(deployments).to_not include(@name)
         end
 
-        it "has log available for the new deployment" do
+        it "has logs available for the new deployment" do
           wait_until(240,15) {
             response = http_get("http://localhost:9091/loki/api/v1/query?query=%7Bjob%3D%22kubernetes-testing%2F#{@name}%22%7D")
             expect(response).to_not be_nil

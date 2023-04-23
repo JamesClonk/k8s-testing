@@ -75,7 +75,7 @@ if Config.longhorn_enabled
       end
 
       if Config.ingress_enabled
-        context 'with an Ingress' do
+        context 'with an ingress' do
           before(:all) do
             @ingress_filename = 'spec/assets/ingress.yml'
             @ingress_filename = 'spec/assets/ingress-http.yml' unless Config.lets_encrypt_enabled

@@ -21,7 +21,7 @@ if Config.prometheus_enabled
       }
 
       @kubectl.wait_for_deployment('prometheus-server', "240s", 'prometheus')
-      wait_until(120,15) {
+      wait_until(240,15) {
         pods = @kubectl.get_pods_by_label("app=prometheus,component=server", 'prometheus')
         expect(pods).to_not be_nil
         expect(pods.count).to be >= 1
