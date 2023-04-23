@@ -142,6 +142,7 @@ if Config.jcio_enabled
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('image/vnd.microsoft.icon')
+              expect(response.headers[:content_length].to_i).to be >= 555
 
               response = https_get("https://www.#{Config.domain}/images/jamesclonk_coa.png")
               expect(response).to_not be_nil
@@ -230,6 +231,11 @@ if Config.jcio_enabled
               expect(response.body).to include('<title>jamesclonk.io - Movie Database - Zwei ausser Rand und Band</title>')
               expect(response.body).to include('<p class="list-group-item-text">I due superpiedi quasi piatti</p>')
               expect(response.body).to include('die beiden Gelegenheitsganoven Wilbur Walsh und Matt Kirby')
+
+              response = https_get("https://moviedb.#{Config.domain}/images/movies/west.jpg")
+              expect(response).to_not be_nil
+              expect(response.code).to eq(200)
+              expect(response.headers[:content_type]).to include('image/jpeg')
             }
             wait_until(60,15) {
               response = https_get("https://moviedb.#{Config.domain}/directors")

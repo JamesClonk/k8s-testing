@@ -7,8 +7,8 @@ permissions:
   contents: read
 
 jobs:
-  kubernetes-testing:
-    name: 'kubernetes-testing'
+  k8s-testing:
+    name: 'k8s-testing'
     runs-on: ubuntu-latest
 
     steps:
@@ -30,7 +30,7 @@ jobs:
     - name: Setup Chrome
       uses: ./.github/actions/setup-chrome
 
-    - name: Run kubernetes-testing specs
+    - name: Run k8s-testing specs
       run: |
         export KUBECONFIG=kubeconfig
         make test
