@@ -9,3 +9,5 @@ lets_encrypt:
 
 longhorn:
   enabled: false
+pvc_enabled:
+  enabled: false

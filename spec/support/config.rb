@@ -68,11 +68,11 @@ module Config
     @@config['loki']['enabled']
   end
 
-  def self.longhorn_enabled
-    return true if @@config['longhorn'] == nil
-    return true if @@config['longhorn']['enabled'] == nil
-    return true if @@config['longhorn']['enabled'].to_s.empty?
-    @@config['longhorn']['enabled']
+  def self.pvc_enabled
+    return true if @@config['pvc'] == nil
+    return true if @@config['pvc']['enabled'] == nil
+    return true if @@config['pvc']['enabled'].to_s.empty?
+    @@config['pvc']['enabled']
   end
 
   def self.backman_enabled
