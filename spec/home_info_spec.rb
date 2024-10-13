@@ -76,14 +76,14 @@ if Config.home_info_enabled
           end
 
           it "can be https queried via hostname [home-info.#{Config.domain}]" do
-            wait_until(60,15) {
+            wait_until(60,10) {
               response = https_get("https://home-info.#{Config.domain}")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('text/html')
               expect(response.headers[:strict_transport_security]).to include('max-age','includeSubDomains')
               expect(response.body).to include('<title>Home Automation</title>', '<h1 class="title">Home Automation</h1>')
-              expect(response.body).to include('<h2 class="subtitle">The management website for all my <strong>Raspberry Pi / Arduino / ESP8266</strong> stuff!</h2>')
+              expect(response.body).to include('<h2 class="subtitle">The management website for all my <strong>Raspberry Pi / Arduino / ESP8266 / ESP32</strong> stuff!</h2')
             }
           end
 
@@ -93,12 +93,17 @@ if Config.home_info_enabled
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('text/html')
-              expect(response.body).to match(/plant room: <span class=\"has-text-danger\">[0-9]+°C/)
+              expect(response.body).to match(/basement: <span class=\"has-text-danger\">[0-9]+°C/)
+              expect(response.body).to match(/gallery: <span class=\"has-text-danger\">[0-9]+°C/)
               expect(response.body).to match(/living room: <span class=\"has-text-danger\">[0-9]+°C/)
               expect(response.body).to match(/bedroom: <span class=\"has-text-danger\">[0-9]+°C/)
-              expect(response.body).to match(/plant room: <span class=\"has-text-info\">[0-9]+%/)
+              expect(response.body).to match(/basement: <span class=\"has-text-info\">[0-9]+%/)
+              expect(response.body).to match(/gallery: <span class=\"has-text-info\">[0-9]+%/)
               expect(response.body).to match(/living room: <span class=\"has-text-info\">[0-9]+%/)
               expect(response.body).to match(/bedroom: <span class=\"has-text-info\">[0-9]+%/)
+              expect(response.body).to match(/living room: <span class=\"has-text-warning\">[0-9]+ppm/)
+              expect(response.body).to match(/gallery: <span class=\"has-text-warning\">[0-9]+hPa/)
+              expect(response.body).to match(/bedroom: <span class=\"has-text-warning\">[0-9]+ppm/)
               expect(response.body).to include("<small class=\"has-text-danger\">temperature</small><small> - Last Update: #{DateTime.now.strftime('%Y-%m-%d')}")
               expect(response.body).to include("<small class=\"has-text-info\">humidity</small><small> - Last Update: #{DateTime.now.strftime('%Y-%m-%d')}")
             }
@@ -135,7 +140,7 @@ if Config.home_info_enabled
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('text/html')
-              expect(response.body).to include('<h1 class="title">46.9481° / 7.4474°</h1>', '<h2 class="subtitle">549m</h2>')
+              expect(response.body).to include('<h1 class="title">47.02115° / 7.44914°</h1>', '<h2 class="subtitle">555m</h2>')
               expect(response.body).to include("Today<small>, #{DateTime.now.strftime('%A %d.%m.%Y')}</small>")
               expect(response.body).to include("Tomorrow<small>, #{(DateTime.now.next_day(1)).strftime('%A %d.%m.%Y')}</small>")
             }
