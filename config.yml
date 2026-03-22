@@ -7,6 +7,8 @@ lets_encrypt:
   issuer: letsencrypt-staging
   server: https://acme-staging-v02.api.letsencrypt.org/directory
 
+deployment:
+  enabled: false
 longhorn:
   enabled: false
 pvc:

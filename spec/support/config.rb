@@ -26,6 +26,13 @@ module Config
     @@config['random_names']
   end
 
+  def self.deployment_enabled
+    return true if @@config['deployment'] == nil
+    return true if @@config['deployment']['enabled'] == nil
+    return true if @@config['deployment']['enabled'].to_s.empty?
+    @@config['deployment']['enabled']
+  end
+
   def self.dashboard_enabled
     return true if @@config['dashboard'] == nil
     return true if @@config['dashboard']['enabled'] == nil
