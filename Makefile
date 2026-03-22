@@ -13,9 +13,11 @@ after:
 fast:
 	bundle exec rspec -t fast
 
-bundler: install package
+bundler: install
 install:
-	bundle config set --local path 'vendor'
-	bundle install
+	bundle install --local
 package:
-	bundle package
+	bundle config set --local path 'vendor/bundle'
+	bundle config set --local cache_all true
+	bundle install
+	bundle cache
