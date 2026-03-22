@@ -39,24 +39,26 @@ if Config.home_info_enabled
         }
       end
 
-      if Config.ingress_enabled
-        it 'has an ingress' do
-          ingresses = @kubectl.get_ingresses('home-info')
-          expect(ingresses).to_not be_nil
+      if Config.httproute_enabled
+        it 'has an httproute' do
+          httproutes = @kubectl.get_httproutes('home-info')
+          expect(httproutes).to_not be_nil
 
-          ingresses.map! { |ingress| ingress['metadata']['name'] }
-          expect(ingresses).to include('home-info')
+          httproutes.map! { |httproute| httproute['metadata']['name'] }
+          expect(httproutes).to include('home-info')
         end
 
         if Config.lets_encrypt_enabled
           it 'has a valid certificate' do
             wait_until(120,15) {
-              certificates = @kubectl.get_certificates('home-info')
+              # since the migration to envoy gateway all certificates are now in the same global namespace
+              # gateway-api was designed by idiots ...
+              certificates = @kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 1
 
-              expect(certificates.any?{ |c| c['metadata']['name'] == "home-info-tls" }).to eq(true)
-              certificate = certificates.select{ |c| c['metadata']['name'] == "home-info-tls" }.first
+              expect(certificates.any?{ |c| c['metadata']['name'] == "home-info-certificate" }).to eq(true)
+              certificate = certificates.select{ |c| c['metadata']['name'] == "home-info-certificate" }.first
 
               expect(certificate['spec']).to_not be_nil
               expect(certificate['spec']['dnsNames']).to_not be_nil
@@ -130,7 +132,7 @@ if Config.home_info_enabled
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('text/html')
-              expect(response.body).to include('air quality lamp too hot', 'temperature (°C - celsius)', '5;&lt;;30', '*/5 * * * *')
+              expect(response.body).to include('air quality lamp too hot', 'temperature (°C - celsius)', '5;&lt;;60', '*/5 * * * *')
             }
           end
 
