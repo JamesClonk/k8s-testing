@@ -38,24 +38,26 @@ if Config.resume_enabled
         }
       end
 
-      if Config.ingress_enabled
-        it 'has an ingress' do
-          ingresses = @kubectl.get_ingresses('resume')
-          expect(ingresses).to_not be_nil
+      if Config.httproute_enabled
+        it 'has a httproute' do
+          httproutes = @kubectl.get_httproutes('resume')
+          expect(httproutes).to_not be_nil
 
-          ingresses.map! { |ingress| ingress['metadata']['name'] }
-          expect(ingresses).to include('resume')
+          httproutes.map! { |httproute| httproute['metadata']['name'] }
+          expect(httproutes).to include('resume')
         end
 
         if Config.lets_encrypt_enabled
           it 'has a valid certificate' do
-            wait_until(120,15) {
-              certificates = @kubectl.get_certificates('resume')
+            wait_until(60,10) {
+              # since the migration to envoy gateway all certificates are now in the same global namespace
+              # gateway-api was designed by idiots ...
+              certificates = @kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 1
 
-              expect(certificates.any?{ |c| c['metadata']['name'] == "resume-tls" }).to eq(true)
-              certificate = certificates.select{ |c| c['metadata']['name'] == "resume-tls" }.first
+              expect(certificates.any?{ |c| c['metadata']['name'] == "resume-certificate" }).to eq(true)
+              certificate = certificates.select{ |c| c['metadata']['name'] == "resume-certificate" }.first
 
               expect(certificate['spec']).to_not be_nil
               expect(certificate['spec']['dnsNames']).to_not be_nil
@@ -75,7 +77,7 @@ if Config.resume_enabled
           end
 
           it "can be https queried via hostname [resume.#{Config.domain}]" do
-            wait_until(60,15) {
+            wait_until(60,10) {
               response = https_get("https://resume.#{Config.domain}")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)

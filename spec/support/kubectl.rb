@@ -69,13 +69,13 @@ module Kubectl
     end
 
     def get_certificates(namespace = Config.namespace, allow_failure: false)
-      ingresses = get_objects("certificate", namespace, allow_failure: allow_failure)
-      ingresses['items']
+      certificates = get_objects("certificate", namespace, allow_failure: allow_failure)
+      certificates['items']
     end
 
-    def get_ingresses(namespace = Config.namespace, allow_failure: false)
-      ingresses = get_objects("ingress", namespace, allow_failure: allow_failure)
-      ingresses['items']
+    def get_httproutes(namespace = Config.namespace, allow_failure: false)
+      httproutes = get_objects("httproute", namespace, allow_failure: allow_failure)
+      httproutes['items']
     end
 
     def get_deployments(namespace = Config.namespace, allow_failure: false)

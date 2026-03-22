@@ -1,0 +1,22 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ${NAME}
+spec:
+  parentRefs:
+  - name: envoy-gateway
+    namespace: envoy-gateway-system
+    sectionName: testing
+  hostnames:
+  - ${NAME}.${DOMAIN}
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: ${NAME}
+      port: 80
+    matches:
+    - path:
+        type: PathPrefix
+        value: /

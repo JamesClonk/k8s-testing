@@ -12,8 +12,8 @@ module Config
   end
 
   def self.namespace
-    return 'kubernetes-testing' if @@config['namespace'] == nil
-    return 'kubernetes-testing' if @@config['namespace'].to_s.empty?
+    return 'k8s-testing' if @@config['namespace'] == nil
+    return 'k8s-testing' if @@config['namespace'].to_s.empty?
     @@config['namespace']
   end
 
@@ -40,11 +40,11 @@ module Config
     @@config['grafana']['enabled']
   end
 
-  def self.ingress_enabled
-    return true if @@config['ingress'] == nil
-    return true if @@config['ingress']['enabled'] == nil
-    return true if @@config['ingress']['enabled'].to_s.empty?
-    @@config['ingress']['enabled']
+  def self.httproute_enabled
+    return true if @@config['httproute'] == nil
+    return true if @@config['httproute']['enabled'] == nil
+    return true if @@config['httproute']['enabled'].to_s.empty?
+    @@config['httproute']['enabled']
   end
 
   def self.lets_encrypt_enabled
