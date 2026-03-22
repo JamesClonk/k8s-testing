@@ -183,7 +183,7 @@ module Kubectl
       end
       begin
         puts "- label namespace [#{Config.namespace}]"
-        label_namespace("app", "kubernetes-testing", Config.namespace)
+        label_namespace("app", "k8s-testing", Config.namespace)
         label_namespace("namespace.kubernetes.io/name", Config.namespace, Config.namespace)
       rescue StandardError => e
         puts e.message

@@ -39,7 +39,7 @@ if Config.resume_enabled
       end
 
       if Config.httproute_enabled
-        it 'has a httproute' do
+        it 'has an httproute' do
           httproutes = @kubectl.get_httproutes('resume')
           expect(httproutes).to_not be_nil
 
@@ -49,7 +49,7 @@ if Config.resume_enabled
 
         if Config.lets_encrypt_enabled
           it 'has a valid certificate' do
-            wait_until(60,10) {
+            wait_until(120,15) {
               # since the migration to envoy gateway all certificates are now in the same global namespace
               # gateway-api was designed by idiots ...
               certificates = @kubectl.get_certificates('envoy-gateway-system')
@@ -77,12 +77,12 @@ if Config.resume_enabled
           end
 
           it "can be https queried via hostname [resume.#{Config.domain}]" do
-            wait_until(60,10) {
+            wait_until(60,15) {
               response = https_get("https://resume.#{Config.domain}")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('text/html')
-              expect(response.body).to include('Senior DevOps Engineer','fabio.berchtold@swisscom.com','Platform-as-a-Service')
+              expect(response.body).to include('Senior Cloud Architect', 'Senior DevOps Engineer','fabio.berchtold@swisscom.com','Platform-as-a-Service')
               expect(response.body).to include('Swisscom (Schweiz) AG','WISS - Wirtschaftsinformatikschule Schweiz')
             }
           end

@@ -72,35 +72,45 @@ if Config.jcio_enabled
         }
       end
 
-      if Config.ingress_enabled
-        it 'has ingresses' do
-          ingresses = @kubectl.get_ingresses('jcio')
-          expect(ingresses).to_not be_nil
+      if Config.httproute_enabled
+        it 'has httproutes' do
+          httproutes = @kubectl.get_httproutes('jcio')
+          expect(httproutes).to_not be_nil
 
-          ingresses.map! { |ingress| ingress['metadata']['name'] }
-          expect(ingresses).to include('jcio-frontend', 'moviedb')
+          httproutes.map! { |httproute| httproute['metadata']['name'] }
+          expect(httproutes).to include('jcio-frontend', 'moviedb', 'moviedb-frontend', 'moviedb-backend')
         end
 
         if Config.lets_encrypt_enabled
           it 'has valid certificates' do
             wait_until(120,15) {
-              certificates = @kubectl.get_certificates('jcio')
+              # since the migration to envoy gateway all certificates are now in the same global namespace
+              # gateway-api was designed by idiots ...
+              certificates = @kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 2
 
-              ['jcio-tls','moviedb-tls'].each { |cert|
+              ['jcio-certificate','moviedb-certificate','moviedb-frontend-certificate','moviedb-backend-certificate'].each { |cert|
                 expect(certificates.any?{ |c| c['metadata']['name'] == cert }).to eq(true)
                 certificate = certificates.select{ |c| c['metadata']['name'] == cert }.first
 
                 expect(certificate['spec']).to_not be_nil
                 expect(certificate['spec']['dnsNames']).to_not be_nil
-                if cert == 'jcio-tls'
-                  expect(certificate['spec']['dnsNames'].count).to eq(2)
-                  expect(certificate['spec']['dnsNames']).to include("www.#{Config.domain}", "#{Config.domain}")
+                if cert == 'jcio-certificate'
+                  expect(certificate['spec']['dnsNames'].count).to eq(1)
+                  expect(certificate['spec']['dnsNames'][0]).to eq(Config.domain)
                 end
-                if cert == 'moviedb-tls'
-                  expect(certificate['spec']['dnsNames'].count).to eq(3)
-                  expect(certificate['spec']['dnsNames']).to include("moviedb.#{Config.domain}", "moviedb-frontend.#{Config.domain}", "moviedb-backend.#{Config.domain}")
+                if cert == 'moviedb-certificate'
+                  expect(certificate['spec']['dnsNames'].count).to eq(1)
+                  expect(certificate['spec']['dnsNames'][0]).to eq("moviedb.#{Config.domain}")
+                end
+                if cert == 'moviedb-frontend-certificate'
+                  expect(certificate['spec']['dnsNames'].count).to eq(1)
+                  expect(certificate['spec']['dnsNames'][0]).to eq("moviedb-frontend.#{Config.domain}")
+                end
+                if cert == 'moviedb-backend-certificate'
+                  expect(certificate['spec']['dnsNames'].count).to eq(1)
+                  expect(certificate['spec']['dnsNames'][0]).to eq("moviedb-backend.#{Config.domain}")
                 end
 
                 expect(certificate['status']).to_not be_nil
@@ -116,9 +126,9 @@ if Config.jcio_enabled
             }
           end
 
-          it "can be https queried via domain [www.#{Config.domain}]" do
+          it "can be https queried via domain [#{Config.domain}]" do
             wait_until(60,15) {
-              response = https_get("https://www.#{Config.domain}")
+              response = https_get("https://#{Config.domain}")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('text/html')
@@ -144,7 +154,7 @@ if Config.jcio_enabled
               expect(response.headers[:content_type]).to include('image/vnd.microsoft.icon')
               expect(response.headers[:content_length].to_i).to be >= 555
 
-              response = https_get("https://www.#{Config.domain}/images/jamesclonk_coa.png")
+              response = https_get("https://#{Config.domain}/images/jamesclonk_coa.png")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('image/png')
@@ -154,7 +164,7 @@ if Config.jcio_enabled
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('image/jpeg')
 
-              response = https_get("https://www.#{Config.domain}/static/Movies")
+              response = https_get("https://#{Config.domain}/static/Movies")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('text/html')

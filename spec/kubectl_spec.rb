@@ -19,15 +19,15 @@ describe 'kubectl', :client => true, :fast => true do
     expect(namespaces.count).to be > 1
 
     namespaces.map! { |namespace| namespace['metadata']['name'] }
-    expect(namespaces).to include("kube-system", "pgweb", "postgres", "oauth2-proxy")
+    expect(namespaces).to include("kube-system", "pgweb", "postgres")
     if Config.dashboard_enabled
-      expect(namespaces).to include("kubernetes-dashboard")
+      expect(namespaces).to include("headlamp")
     end
     if Config.grafana_enabled
       expect(namespaces).to include("grafana")
     end
-    if Config.ingress_enabled
-      expect(namespaces).to include("ingress-nginx")
+    if Config.httproute_enabled
+      expect(namespaces).to include("envoy-gateway-system")
     end
     if Config.lets_encrypt_enabled
       expect(namespaces).to include("cert-manager")

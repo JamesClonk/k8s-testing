@@ -118,30 +118,31 @@ if Config.pvc_enabled
         }
       end
 
-      if Config.ingress_enabled
-        context 'with an ingress' do
+      if Config.httproute_enabled
+        context 'with an httproute' do
           before(:all) do
-            @ingress_filename = 'spec/assets/ingress.yml'
-            @ingress_filename = 'spec/assets/ingress-http.yml' unless Config.lets_encrypt_enabled
-            deploy = @kubectl.deploy(name: @name, filename: @ingress_filename)
+            @httproute_filename = 'spec/assets/httproute.yml'
+            deploy = @kubectl.deploy(name: @name, filename: @httproute_filename)
           end
           after(:all) do
-            delete = @kubectl.delete(name: @name, filename: @ingress_filename)
+            delete = @kubectl.delete(name: @name, filename: @httproute_filename)
 
-            ingresses = @kubectl.get_ingresses
-            expect(ingresses).to_not include(@name)
+            httproutes = @kubectl.get_httproutes
+            expect(httproutes).to_not include(@name)
           end
 
           if Config.lets_encrypt_enabled
             context 'with a valid certificate' do
               before(:all) do
                 wait_until(240,15) {
-                  certificates = @kubectl.get_certificates
+                  # since the migration to envoy gateway all certificates are now in the same global namespace
+                  # gateway-api was designed by idiots ...
+                  certificates = @kubectl.get_certificates('envoy-gateway-system')
                   expect(certificates).to_not be_nil
                   expect(certificates.count).to be >= 1
 
-                  expect(certificates.any?{ |c| c['metadata']['name'] == "#{@name}-tls" }).to eq(true)
-                  certificate = certificates.select{ |c| c['metadata']['name'] == "#{@name}-tls" }.first
+                  expect(certificates.any?{ |c| c['metadata']['name'] == "#{@name}-certificate" }).to eq(true)
+                  certificate = certificates.select{ |c| c['metadata']['name'] == "#{@name}-certificate" }.first
 
                   expect(certificate['spec']).to_not be_nil
                   expect(certificate['spec']['dnsNames']).to_not be_nil
@@ -187,37 +188,6 @@ if Config.pvc_enabled
                     end
                   }
                 end
-              end
-            end
-
-          else # no lets-encrypt, let's just try with HTTP
-
-            it "can validate the app config via http and domain [#{Config.domain}]" do
-              wait_until(30,5) {
-                response = http_get("http://#{@name}.#{Config.domain}/config")
-                expect(response).to_not be_nil
-                expect(response.code).to eq(200)
-                expect(response.headers[:content_type]).to include('application/x-yaml')
-                expect(response.body).to include('fileServerFolder: /var/www')
-              }
-            end
-
-            context 'with files created on the persistent volume' do
-              before(:all) do
-                response = http_patch("http://#{@name}.#{Config.domain}/greet/howdy", "")
-                expect(response.code).to eq(202)
-              end
-
-              it "can serve files from the persistent volume" do
-                wait_until(30,5) {
-                  for file_suffix in 0..10 do
-                    response = http_get("http://#{@name}.#{Config.domain}/static/greet-#{file_suffix}.txt")
-                    expect(response).to_not be_nil
-                    expect(response.code).to eq(200)
-                    expect(response.headers[:content_type]).to include('text/plain')
-                    expect(response.body).to include('Howdy')
-                  end
-                }
               end
             end
           end
