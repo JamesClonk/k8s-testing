@@ -88,6 +88,9 @@ RSpec.describe "cf-env app", type: :feature, js: true, if: Config.cf_env_enabled
           before(:each) do
             visit "https://cf-env.#{Config.domain}/"
             sleep 1
+            # TODO: fill out email and password inputs
+            # TODO: get data from secret in k8s
+            ---
             find('button[type="submit"]').click
             sleep 3 # unfortunately we have to wait here to make sure the login/javascript did their work
           end
