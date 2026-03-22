@@ -38,24 +38,26 @@ if Config.irvisualizer_enabled
         }
       end
 
-      if Config.ingress_enabled
-        it 'has an ingress' do
-          ingresses = @kubectl.get_ingresses('irvisualizer')
-          expect(ingresses).to_not be_nil
+      if Config.httproute_enabled
+        it 'has an httproute' do
+          httproutes = @kubectl.get_httproutes('irvisualizer')
+          expect(httproutes).to_not be_nil
 
-          ingresses.map! { |ingress| ingress['metadata']['name'] }
-          expect(ingresses).to include('irvisualizer')
+          httproutes.map! { |httproute| httproute['metadata']['name'] }
+          expect(httproutes).to include('irvisualizer')
         end
 
         if Config.lets_encrypt_enabled
           it 'has a valid certificate' do
             wait_until(120,15) {
-              certificates = @kubectl.get_certificates('irvisualizer')
+              # since the migration to envoy gateway all certificates are now in the same global namespace
+              # gateway-api was designed by idiots ...
+              certificates = @kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 2
 
-              expect(certificates.any?{ |c| c['metadata']['name'] == 'irvisualizer-tls' }).to eq(true)
-              certificate = certificates.select{ |c| c['metadata']['name'] == 'irvisualizer-tls' }.first
+              expect(certificates.any?{ |c| c['metadata']['name'] == "irvisualizer-certificate" }).to eq(true)
+              certificate = certificates.select{ |c| c['metadata']['name'] == "irvisualizer-certificate" }.first
 
               expect(certificate['spec']).to_not be_nil
               expect(certificate['spec']['dnsNames']).to_not be_nil
@@ -89,7 +91,7 @@ if Config.irvisualizer_enabled
 
           it "shows heatmaps" do
             wait_until(60,15) {
-              response = https_get("https://irvisualizer.#{Config.domain}/season/4161/heatmap.png")
+              response = https_get("https://irvisualizer.#{Config.domain}/season/5942/heatmap.png")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('image/png')
@@ -99,7 +101,7 @@ if Config.irvisualizer_enabled
 
           it "shows top laps" do
             wait_until(60,15) {
-              response = https_get("https://irvisualizer.#{Config.domain}/season/3887/week/03/top/laps.png")
+              response = https_get("https://irvisualizer.#{Config.domain}/season/5941/week/03/top/laps.png")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('image/png')
@@ -109,7 +111,7 @@ if Config.irvisualizer_enabled
 
           it "shows top scores" do
             wait_until(60,15) {
-              response = https_get("https://irvisualizer.#{Config.domain}/season/3851/week/07/top/scores.png")
+              response = https_get("https://irvisualizer.#{Config.domain}/season/5776/week/07/top/scores.png")
               expect(response).to_not be_nil
               expect(response.code).to eq(200)
               expect(response.headers[:content_type]).to include('image/png')
@@ -156,24 +158,26 @@ if Config.irvisualizer_enabled
         }
       end
 
-      if Config.ingress_enabled
-        it 'has an ingress' do
-          ingresses = @kubectl.get_ingresses('irvisualizer')
-          expect(ingresses).to_not be_nil
+      if Config.httproute_enabled
+        it 'has an httproute' do
+          httproutes = @kubectl.get_httproutes('irvisualizer')
+          expect(httproutes).to_not be_nil
 
-          ingresses.map! { |ingress| ingress['metadata']['name'] }
-          expect(ingresses).to include('ircollector')
+          httproutes.map! { |httproute| httproute['metadata']['name'] }
+          expect(httproutes).to include('ircollector')
         end
 
         if Config.lets_encrypt_enabled
           it 'has a valid certificate' do
             wait_until(120,15) {
-              certificates = @kubectl.get_certificates('irvisualizer')
+              # since the migration to envoy gateway all certificates are now in the same global namespace
+              # gateway-api was designed by idiots ...
+              certificates = @kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 2
 
-              expect(certificates.any?{ |c| c['metadata']['name'] == 'ircollector-tls' }).to eq(true)
-              certificate = certificates.select{ |c| c['metadata']['name'] == 'ircollector-tls' }.first
+              expect(certificates.any?{ |c| c['metadata']['name'] == 'ircollector-certificate' }).to eq(true)
+              certificate = certificates.select{ |c| c['metadata']['name'] == 'ircollector-certificate' }.first
 
               expect(certificate['spec']).to_not be_nil
               expect(certificate['spec']['dnsNames']).to_not be_nil
