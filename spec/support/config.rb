@@ -40,6 +40,13 @@ module Config
     @@config['dashboard']['enabled']
   end
 
+  def self.cf_env_enabled
+    return true if @@config['cf_env'] == nil
+    return true if @@config['cf_env']['enabled'] == nil
+    return true if @@config['cf_env']['enabled'].to_s.empty?
+    @@config['cf_env']['enabled']
+  end
+
   def self.grafana_enabled
     return true if @@config['grafana'] == nil
     return true if @@config['grafana']['enabled'] == nil
