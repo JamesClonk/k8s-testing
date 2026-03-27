@@ -6,23 +6,23 @@ require 'spec_helper'
 
 if Config.prometheus_enabled
   describe 'prometheus', :prometheus => true do
+    let(:kubectl) { Kubectl.new }
     before(:all) do
-      @kubectl = KUBECTL.new()
       @name = Config.random_names ? random_name('prometheus') : 'test-prometheus'
     end
 
     it "is running" do
       wait_until(60,10) {
-        deployments = @kubectl.get_deployments('prometheus')
+        deployments = kubectl.get_deployments('prometheus')
         expect(deployments).to_not be_nil
 
         deployments.map! { |deployment| deployment['metadata']['name'] }
         expect(deployments).to include('prometheus-server')
       }
 
-      @kubectl.wait_for_deployment('prometheus-server', "240s", 'prometheus')
+      kubectl.wait_for_deployment('prometheus-server', "240s", 'prometheus')
       wait_until(240,15) {
-        pods = @kubectl.get_pods_by_label("app=prometheus,component=server", 'prometheus')
+        pods = kubectl.get_pods_by_label("app=prometheus,component=server", 'prometheus')
         expect(pods).to_not be_nil
         expect(pods.count).to be >= 1
 
@@ -38,13 +38,13 @@ if Config.prometheus_enabled
     end
 
     it "has running node-exporters" do
-      @kubectl.wait_for_daemonset('prometheus-node-exporter', "240s", 'prometheus')
+      kubectl.wait_for_daemonset('prometheus-node-exporter', "240s", 'prometheus')
       wait_until(120,15) {
-        pods = @kubectl.get_pods_by_label('component=node-exporter', 'prometheus')
+        pods = kubectl.get_pods_by_label('component=node-exporter', 'prometheus')
         expect(pods).to_not be_nil
         expect(pods.count).to be >= 1
 
-        nodes = @kubectl.get_nodes
+        nodes = kubectl.get_nodes
         expect(nodes).to_not be_nil
         expect(nodes.count).to be >= 1
         expect(pods.count).to eq nodes.count
@@ -62,12 +62,12 @@ if Config.prometheus_enabled
 
     context "when port-forwarding from localhost to [service/prometheus-server]" do
       before(:each) do
-        @forward_pid = @kubectl.port_forward('service/prometheus-server',9090,80,'prometheus')
+        @forward_pid = kubectl.port_forward('service/prometheus-server',9090,80,'prometheus')
         sleep 5
       end
       after(:each) do
-        @kubectl.stop_pid(@forward_pid)
-        #@kubectl.stop_forward('service/prometheus-server',9090,80,'prometheus')
+        kubectl.stop_pid(@forward_pid)
+        #kubectl.stop_forward('service/prometheus-server',9090,80,'prometheus')
       end
 
       it "has metrics available" do

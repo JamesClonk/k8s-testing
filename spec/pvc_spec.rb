@@ -4,25 +4,25 @@ require 'spec_helper'
 
 if Config.pvc_enabled
   describe 'a kubernetes deployment with a persistent volume', :pvc => true do
+    let(:kubectl) { Kubectl.new }
     before(:all) do
-      @kubectl = KUBECTL.new()
       @name = Config.random_names ? random_name('deployment') : 'test-deployment'
     end
 
     context 'when deployed' do
       before(:all) do
-        deploy = @kubectl.deploy(name: @name, filename: 'spec/assets/deployment-with-pvc.yml')
+        deploy = kubectl.deploy(name: @name, filename: 'spec/assets/deployment-with-pvc.yml')
       end
       after(:all) do
-        delete = @kubectl.delete(name: @name, filename: 'spec/assets/deployment-with-pvc.yml')
+        delete = kubectl.delete(name: @name, filename: 'spec/assets/deployment-with-pvc.yml')
 
-        deployments = @kubectl.get_deployments
+        deployments = kubectl.get_deployments
         expect(deployments).to_not include(@name)
       end
 
       it "exists" do
         wait_until(60,10) {
-          deployments = @kubectl.get_deployments
+          deployments = kubectl.get_deployments
           expect(deployments).to_not be_nil
 
           deployments.map! { |deployment| deployment['metadata']['name'] }
@@ -31,10 +31,10 @@ if Config.pvc_enabled
       end
 
       it "has running pods with a volume mount" do
-        @kubectl.wait_for_deployment(@name)
+        kubectl.wait_for_deployment(@name)
 
         wait_until(240,15) {
-          pods = @kubectl.get_pods_by_label("app=#{@name}")
+          pods = kubectl.get_pods_by_label("app=#{@name}")
           expect(pods).to_not be_nil
           expect(pods.count).to eq(1) # the deployment has 1 replica defined
 
@@ -49,7 +49,7 @@ if Config.pvc_enabled
         }
 
         wait_until(60,15) {
-          pods = @kubectl.get_pods_by_label("app=#{@name}")
+          pods = kubectl.get_pods_by_label("app=#{@name}")
           expect(pods).to_not be_nil
 
           pods.each{ |pod|
@@ -62,10 +62,10 @@ if Config.pvc_enabled
       end
 
       it "has running pods with a volume mount" do
-        @kubectl.wait_for_deployment(@name)
+        kubectl.wait_for_deployment(@name)
 
         wait_until(240,15) {
-          pods = @kubectl.get_pods_by_label("app=#{@name}")
+          pods = kubectl.get_pods_by_label("app=#{@name}")
           expect(pods).to_not be_nil
           expect(pods.count).to eq(1) # the deployment has 1 replica defined
 
@@ -80,7 +80,7 @@ if Config.pvc_enabled
         }
 
         wait_until(60,15) {
-          pods = @kubectl.get_pods_by_label("app=#{@name}")
+          pods = kubectl.get_pods_by_label("app=#{@name}")
           expect(pods).to_not be_nil
 
           pods.each{ |pod|
@@ -93,10 +93,10 @@ if Config.pvc_enabled
       end
 
       it "has a bound persistent volume" do
-        @kubectl.wait_for_deployment(@name)
+        kubectl.wait_for_deployment(@name)
 
         wait_until(240,15) {
-          pvc = @kubectl.get_object("pvc", @name)
+          pvc = kubectl.get_object("pvc", @name)
           expect(pvc).to_not be_nil
           expect(pvc['metadata']['name']).to eq(@name)
           expect(pvc['metadata']['annotations']['pv.kubernetes.io/bind-completed']).to eq("yes")
@@ -106,7 +106,7 @@ if Config.pvc_enabled
           expect(pvc['status']['phase']).to eq("Bound")
 
           pv_name = pvc['spec']['volumeName']
-          pv = @kubectl.get_object("pv", pv_name)
+          pv = kubectl.get_object("pv", pv_name)
           expect(pv).to_not be_nil
           expect(pv['metadata']['name']).to eq(pv_name)
           expect(pv['metadata']['annotations']['pv.kubernetes.io/provisioned-by']).to eq(pvc['metadata']['annotations']['volume.kubernetes.io/storage-provisioner'])
@@ -122,12 +122,12 @@ if Config.pvc_enabled
         context 'with an httproute' do
           before(:all) do
             @httproute_filename = 'spec/assets/httproute.yml'
-            deploy = @kubectl.deploy(name: @name, filename: @httproute_filename)
+            deploy = kubectl.deploy(name: @name, filename: @httproute_filename)
           end
           after(:all) do
-            delete = @kubectl.delete(name: @name, filename: @httproute_filename)
+            delete = kubectl.delete(name: @name, filename: @httproute_filename)
 
-            httproutes = @kubectl.get_httproutes
+            httproutes = kubectl.get_httproutes
             expect(httproutes).to_not include(@name)
           end
 
@@ -137,7 +137,7 @@ if Config.pvc_enabled
                 wait_until(240,15) {
                   # since the migration to envoy gateway all certificates are now in the same global namespace
                   # gateway-api was designed by idiots ...
-                  certificates = @kubectl.get_certificates('envoy-gateway-system')
+                  certificates = kubectl.get_certificates('envoy-gateway-system')
                   expect(certificates).to_not be_nil
                   expect(certificates.count).to be >= 1
 

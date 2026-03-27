@@ -4,14 +4,12 @@ require 'spec_helper'
 
 if Config.irvisualizer_enabled
   describe 'irvisualizer app', :irvisualizer => true do
-    before(:all) do
-      @kubectl = KUBECTL.new()
-    end
+    let(:kubectl) { Kubectl.new }
 
     context 'when enabled' do
       it "exists" do
         wait_until(60,10) {
-          deployments = @kubectl.get_deployments('irvisualizer')
+          deployments = kubectl.get_deployments('irvisualizer')
           expect(deployments).to_not be_nil
 
           deployments.map! { |deployment| deployment['metadata']['name'] }
@@ -20,10 +18,10 @@ if Config.irvisualizer_enabled
       end
 
       it "has running pods for irvisualizer" do
-        @kubectl.wait_for_deployment('irvisualizer', '120s', 'irvisualizer')
+        kubectl.wait_for_deployment('irvisualizer', '120s', 'irvisualizer')
 
         wait_until(120,15) {
-          pods = @kubectl.get_pods_by_label("app=irvisualizer,app.kubernetes.io/component=frontend", 'irvisualizer')
+          pods = kubectl.get_pods_by_label("app=irvisualizer,app.kubernetes.io/component=frontend", 'irvisualizer')
           expect(pods).to_not be_nil
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
@@ -40,7 +38,7 @@ if Config.irvisualizer_enabled
 
       if Config.httproute_enabled
         it 'has an httproute' do
-          httproutes = @kubectl.get_httproutes('irvisualizer')
+          httproutes = kubectl.get_httproutes('irvisualizer')
           expect(httproutes).to_not be_nil
 
           httproutes.map! { |httproute| httproute['metadata']['name'] }
@@ -52,7 +50,7 @@ if Config.irvisualizer_enabled
             wait_until(120,15) {
               # since the migration to envoy gateway all certificates are now in the same global namespace
               # gateway-api was designed by idiots ...
-              certificates = @kubectl.get_certificates('envoy-gateway-system')
+              certificates = kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 2
 
@@ -124,14 +122,12 @@ if Config.irvisualizer_enabled
   end
 
   describe 'ircollector app', :irvisualizer => true do
-    before(:all) do
-      @kubectl = KUBECTL.new()
-    end
+    let(:kubectl) { Kubectl.new }
 
     context 'when enabled' do
       it "exists" do
         wait_until(60,10) {
-          deployments = @kubectl.get_deployments('irvisualizer')
+          deployments = kubectl.get_deployments('irvisualizer')
           expect(deployments).to_not be_nil
 
           deployments.map! { |deployment| deployment['metadata']['name'] }
@@ -140,10 +136,10 @@ if Config.irvisualizer_enabled
       end
 
       it "has running pods for ircollector" do
-        @kubectl.wait_for_deployment('ircollector', '120s', 'irvisualizer')
+        kubectl.wait_for_deployment('ircollector', '120s', 'irvisualizer')
 
         wait_until(120,15) {
-          pods = @kubectl.get_pods_by_label("app=irvisualizer,app.kubernetes.io/component=backend", 'irvisualizer')
+          pods = kubectl.get_pods_by_label("app=irvisualizer,app.kubernetes.io/component=backend", 'irvisualizer')
           expect(pods).to_not be_nil
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
@@ -160,7 +156,7 @@ if Config.irvisualizer_enabled
 
       if Config.httproute_enabled
         it 'has an httproute' do
-          httproutes = @kubectl.get_httproutes('irvisualizer')
+          httproutes = kubectl.get_httproutes('irvisualizer')
           expect(httproutes).to_not be_nil
 
           httproutes.map! { |httproute| httproute['metadata']['name'] }
@@ -172,7 +168,7 @@ if Config.irvisualizer_enabled
             wait_until(120,15) {
               # since the migration to envoy gateway all certificates are now in the same global namespace
               # gateway-api was designed by idiots ...
-              certificates = @kubectl.get_certificates('envoy-gateway-system')
+              certificates = kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 2
 
@@ -213,14 +209,12 @@ if Config.irvisualizer_enabled
   end
 
   describe 'irdiscordbot app', :irvisualizer => true do
-    before(:all) do
-      @kubectl = KUBECTL.new()
-    end
+    let(:kubectl) { Kubectl.new }
 
     context 'when enabled' do
       it "exists" do
         wait_until(60,10) {
-          deployments = @kubectl.get_deployments('irvisualizer')
+          deployments = kubectl.get_deployments('irvisualizer')
           expect(deployments).to_not be_nil
 
           deployments.map! { |deployment| deployment['metadata']['name'] }
@@ -229,10 +223,10 @@ if Config.irvisualizer_enabled
       end
 
       it "has running pods for irdiscordbot" do
-        @kubectl.wait_for_deployment('irdiscordbot', '120s', 'irvisualizer')
+        kubectl.wait_for_deployment('irdiscordbot', '120s', 'irvisualizer')
 
         wait_until(120,15) {
-          pods = @kubectl.get_pods_by_label("app=irvisualizer,app.kubernetes.io/component=discord", 'irvisualizer')
+          pods = kubectl.get_pods_by_label("app=irvisualizer,app.kubernetes.io/component=discord", 'irvisualizer')
           expect(pods).to_not be_nil
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 

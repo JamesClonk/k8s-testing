@@ -3,9 +3,7 @@
 require 'spec_helper'
 
 describe 'kubectl', :client => true, :fast => true do
-  subject(:kubectl) do
-    KUBECTL.new()
-  end
+  let(:kubectl) { Kubectl.new }
 
   it 'can connect to the cluster' do
     info = kubectl.cluster_info

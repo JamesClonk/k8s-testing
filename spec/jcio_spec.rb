@@ -4,14 +4,12 @@ require 'spec_helper'
 
 if Config.jcio_enabled
   describe 'jcio app', :jcio => true do
-    before(:all) do
-      @kubectl = KUBECTL.new()
-    end
+    let(:kubectl) { Kubectl.new }
 
     context 'when enabled' do
       it "exists" do
         wait_until(60,10) {
-          deployments = @kubectl.get_deployments('jcio')
+          deployments = kubectl.get_deployments('jcio')
           expect(deployments).to_not be_nil
 
           deployments.map! { |deployment| deployment['metadata']['name'] }
@@ -20,10 +18,10 @@ if Config.jcio_enabled
       end
 
       it "has running pods for frontend" do
-        @kubectl.wait_for_deployment('jcio-frontend', '120s', 'jcio')
+        kubectl.wait_for_deployment('jcio-frontend', '120s', 'jcio')
 
         wait_until(120,15) {
-          pods = @kubectl.get_pods_by_label("app=jcio,app.kubernetes.io/component=jcio-frontend", 'jcio')
+          pods = kubectl.get_pods_by_label("app=jcio,app.kubernetes.io/component=jcio-frontend", 'jcio')
           expect(pods).to_not be_nil
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
@@ -39,11 +37,11 @@ if Config.jcio_enabled
       end
 
       it "has running pods for moviedb" do
-        @kubectl.wait_for_deployment('moviedb-frontend', '120s', 'jcio')
-        @kubectl.wait_for_deployment('moviedb-backend', '120s', 'jcio')
+        kubectl.wait_for_deployment('moviedb-frontend', '120s', 'jcio')
+        kubectl.wait_for_deployment('moviedb-backend', '120s', 'jcio')
 
         wait_until(120,15) {
-          pods = @kubectl.get_pods_by_label("app=jcio,app.kubernetes.io/component=moviedb-frontend", 'jcio')
+          pods = kubectl.get_pods_by_label("app=jcio,app.kubernetes.io/component=moviedb-frontend", 'jcio')
           expect(pods).to_not be_nil
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
@@ -57,7 +55,7 @@ if Config.jcio_enabled
           }
         }
         wait_until(120,15) {
-          pods = @kubectl.get_pods_by_label("app=jcio,app.kubernetes.io/component=moviedb-backend", 'jcio')
+          pods = kubectl.get_pods_by_label("app=jcio,app.kubernetes.io/component=moviedb-backend", 'jcio')
           expect(pods).to_not be_nil
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
@@ -74,7 +72,7 @@ if Config.jcio_enabled
 
       if Config.httproute_enabled
         it 'has httproutes' do
-          httproutes = @kubectl.get_httproutes('jcio')
+          httproutes = kubectl.get_httproutes('jcio')
           expect(httproutes).to_not be_nil
 
           httproutes.map! { |httproute| httproute['metadata']['name'] }
@@ -86,7 +84,7 @@ if Config.jcio_enabled
             wait_until(120,15) {
               # since the migration to envoy gateway all certificates are now in the same global namespace
               # gateway-api was designed by idiots ...
-              certificates = @kubectl.get_certificates('envoy-gateway-system')
+              certificates = kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 2
 

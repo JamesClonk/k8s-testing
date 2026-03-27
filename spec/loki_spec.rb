@@ -6,23 +6,23 @@ require 'spec_helper'
 
 if Config.loki_enabled
   describe 'loki', :loki => true do
+    let(:kubectl) { Kubectl.new }
     before(:all) do
-      @kubectl = KUBECTL.new()
       @name = Config.random_names ? random_name('loki') : 'test-loki'
     end
 
     it "is running" do
       wait_until(60,10) {
-        pods = @kubectl.get_pods('loki')
+        pods = kubectl.get_pods('loki')
         expect(pods).to_not be_nil
 
         pods.map! { |pod| pod['metadata']['name'] }
         expect(pods).to include('loki-0')
       }
 
-      @kubectl.wait_for_statefulset('loki', "240s", 'loki')
+      kubectl.wait_for_statefulset('loki', "240s", 'loki')
       wait_until(120,15) {
-        pods = @kubectl.get_pods_by_label("app.kubernetes.io/name=loki", 'loki')
+        pods = kubectl.get_pods_by_label("app.kubernetes.io/name=loki", 'loki')
         expect(pods).to_not be_nil
         expect(pods.count).to be >= 1
 
@@ -39,11 +39,11 @@ if Config.loki_enabled
 
     context "when port-forwarding from localhost to [service/loki]" do
       before(:each) do
-        @forward_pid = @kubectl.port_forward('service/loki',9091,3100,'loki')
+        @forward_pid = kubectl.port_forward('service/loki',9091,3100,'loki')
         sleep 5
       end
       after(:each) do
-        @kubectl.stop_pid(@forward_pid)
+        kubectl.stop_pid(@forward_pid)
       end
 
       it "is ready" do
@@ -68,12 +68,12 @@ if Config.loki_enabled
 
       context "when a new deployment is created" do
         before(:all) do
-          deploy = @kubectl.deploy(name: @name, filename: 'spec/assets/deployment.yml')
+          deploy = kubectl.deploy(name: @name, filename: 'spec/assets/deployment.yml')
         end
         after(:all) do
-          delete = @kubectl.delete(name: @name, filename: 'spec/assets/deployment.yml')
+          delete = kubectl.delete(name: @name, filename: 'spec/assets/deployment.yml')
 
-          deployments = @kubectl.get_deployments
+          deployments = kubectl.get_deployments
           expect(deployments).to_not include(@name)
         end
 

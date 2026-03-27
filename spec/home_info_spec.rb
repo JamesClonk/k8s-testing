@@ -5,14 +5,12 @@ require 'date'
 
 if Config.home_info_enabled
   describe 'home-info app', :home_info => true do
-    before(:all) do
-      @kubectl = KUBECTL.new()
-    end
+    let(:kubectl) { Kubectl.new }
 
     context 'when enabled' do
       it "exists" do
         wait_until(60,10) {
-          deployments = @kubectl.get_deployments('home-info')
+          deployments = kubectl.get_deployments('home-info')
           expect(deployments).to_not be_nil
 
           deployments.map! { |deployment| deployment['metadata']['name'] }
@@ -21,10 +19,10 @@ if Config.home_info_enabled
       end
 
       it "has running pods" do
-        @kubectl.wait_for_deployment('home-info', '120s', 'home-info')
+        kubectl.wait_for_deployment('home-info', '120s', 'home-info')
 
         wait_until(120,15) {
-          pods = @kubectl.get_pods_by_label("app=home-info,app.kubernetes.io/component=dashboard", 'home-info')
+          pods = kubectl.get_pods_by_label("app=home-info,app.kubernetes.io/component=dashboard", 'home-info')
           expect(pods).to_not be_nil
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
@@ -41,7 +39,7 @@ if Config.home_info_enabled
 
       if Config.httproute_enabled
         it 'has an httproute' do
-          httproutes = @kubectl.get_httproutes('home-info')
+          httproutes = kubectl.get_httproutes('home-info')
           expect(httproutes).to_not be_nil
 
           httproutes.map! { |httproute| httproute['metadata']['name'] }
@@ -53,7 +51,7 @@ if Config.home_info_enabled
             wait_until(120,15) {
               # since the migration to envoy gateway all certificates are now in the same global namespace
               # gateway-api was designed by idiots ...
-              certificates = @kubectl.get_certificates('envoy-gateway-system')
+              certificates = kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 1
 

@@ -4,14 +4,12 @@ require 'spec_helper'
 
 if Config.resume_enabled
   describe 'resume app', :resume => true do
-    before(:all) do
-      @kubectl = KUBECTL.new()
-    end
+    let(:kubectl) { Kubectl.new }
 
     context 'when enabled' do
       it "exists" do
         wait_until(60,10) {
-          deployments = @kubectl.get_deployments('resume')
+          deployments = kubectl.get_deployments('resume')
           expect(deployments).to_not be_nil
 
           deployments.map! { |deployment| deployment['metadata']['name'] }
@@ -20,10 +18,10 @@ if Config.resume_enabled
       end
 
       it "has running pods" do
-        @kubectl.wait_for_deployment('resume', '120s', 'resume')
+        kubectl.wait_for_deployment('resume', '120s', 'resume')
 
         wait_until(120,15) {
-          pods = @kubectl.get_pods_by_label("app=resume", 'resume')
+          pods = kubectl.get_pods_by_label("app=resume", 'resume')
           expect(pods).to_not be_nil
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
@@ -40,7 +38,7 @@ if Config.resume_enabled
 
       if Config.httproute_enabled
         it 'has an httproute' do
-          httproutes = @kubectl.get_httproutes('resume')
+          httproutes = kubectl.get_httproutes('resume')
           expect(httproutes).to_not be_nil
 
           httproutes.map! { |httproute| httproute['metadata']['name'] }
@@ -52,7 +50,7 @@ if Config.resume_enabled
             wait_until(120,15) {
               # since the migration to envoy gateway all certificates are now in the same global namespace
               # gateway-api was designed by idiots ...
-              certificates = @kubectl.get_certificates('envoy-gateway-system')
+              certificates = kubectl.get_certificates('envoy-gateway-system')
               expect(certificates).to_not be_nil
               expect(certificates.count).to be >= 1
 
