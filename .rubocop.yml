@@ -1,5 +1,6 @@
 AllCops:
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 3.2
+  NewCops: disable
   Include:
     - '**/Gemfile'
     - '**/Rakefile'
@@ -7,15 +8,11 @@ AllCops:
     - src/**/*
     - vendor/**/*
     - db/migrations/**/*
-  DisplayCopNames:
-    Enabled: true
-  DisplayStyleGuide:
-    Enabled: true
 
 Lint/AmbiguousRegexpLiteral:
   Enabled: false
 
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Enabled: true
 
 Lint/UnusedBlockArgument:
@@ -33,7 +30,7 @@ Metrics/ClassLength:
 Metrics/CyclomaticComplexity:
   Max: 12
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 180
 
 Metrics/MethodLength:
@@ -48,34 +45,25 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Enabled: false
 
-Performance/Casecmp:
-  Enabled: false
-
-Performance/Sample:
-  Enabled: false
-
 Style/Alias:
   EnforcedStyle: prefer_alias_method
 
-Style/AlignParameters:
+Layout/ParameterAlignment:
   Enabled: false
 
 Style/BlockDelimiters:
   Enabled: false
 
-Style/BracesAroundHashParameters:
-  Enabled: false
-
 Style/ClassAndModuleChildren:
   Enabled: false
 
-Style/ClosingParenthesisIndentation:
+Layout/ClosingParenthesisIndentation:
   Enabled: false
 
 Style/Documentation:
   Enabled: false
 
-Style/DotPosition:
+Layout/DotPosition:
   EnforcedStyle: trailing
 
 Style/DoubleNegation:
@@ -93,10 +81,10 @@ Style/GuardClause:
 Style/IfUnlessModifier:
   Enabled: false
 
-Style/IndentArray:
+Layout/FirstArrayElementIndentation:
   EnforcedStyle: consistent
 
-Style/IndentHash:
+Layout/FirstHashElementIndentation:
   Enabled: false
 
 Style/Lambda:
@@ -105,10 +93,10 @@ Style/Lambda:
 Style/MultilineBlockChain:
   Enabled: false
 
-Style/MultilineBlockLayout:
+Layout/MultilineBlockLayout:
   Enabled: false
 
-Style/MultilineOperationIndentation:
+Layout/MultilineOperationIndentation:
   Enabled: false
 
 Style/NegatedIf:
@@ -120,7 +108,7 @@ Style/Next:
 Style/NumericLiterals:
   Enabled: false
 
-Style/PredicateName:
+Naming/PredicatePrefix:
   Enabled: false
 
 Style/RaiseArgs:
@@ -138,7 +126,7 @@ Style/SignalException:
 Style/SingleLineBlockParams:
   Enabled: false
 
-Style/SpaceAroundEqualsInParameterDefault:
+Layout/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
 
 Style/StructInheritance:
@@ -147,7 +135,10 @@ Style/StructInheritance:
 Style/TrailingCommaInArguments:
   Enabled: false
 
-Style/TrailingCommaInLiteral:
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+Style/TrailingCommaInHashLiteral:
   Enabled: false
 
 Style/TrailingUnderscoreVariable:
@@ -166,7 +157,7 @@ Metrics/BlockLength:
   Exclude:
     - spec/**/*
 
-Lint/RescueWithoutErrorClass:
+Style/RescueStandardError:
   Enabled: false
 
 Naming/FileName:

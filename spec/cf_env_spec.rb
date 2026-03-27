@@ -87,8 +87,8 @@ RSpec.describe "cf-env app", type: :feature, js: true, if: Config.cf_env_enabled
             sleep 2
             expect(find_field(name: "user").value).to eq("")
             expect(find_field(name: "password").value).to eq("")
-            fill_in "user", with: Config.grafana_username
-            fill_in "password", with: Config.grafana_password
+            fill_in "user", with: Config.static_username
+            fill_in "password", with: Config.static_password
             find('button[type="submit"]').click
             sleep 3 # unfortunately we have to wait here to make sure the login/javascript did their work
           end
