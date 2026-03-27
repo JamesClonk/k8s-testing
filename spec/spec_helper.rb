@@ -18,7 +18,6 @@ RSpec.configure do |conf|
   include HttpHelpers
   include FileHelpers
   include UtilHelpers
-  include Kubectl # provides kubectl command running
 
   conf.filter_run focus: true
   conf.run_all_when_everything_filtered = true

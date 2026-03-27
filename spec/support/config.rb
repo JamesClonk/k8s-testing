@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-
 require 'yaml'
+require_relative 'kubectl'
 
 module Config
   @@config = YAML.load_file('config.yml')
@@ -24,6 +24,10 @@ module Config
   def self.random_names
     return false if @@config['random_names'] == nil
     @@config['random_names']
+  end
+
+  def self.static_username
+    kubectl = Kubectl.new
   end
 
   def self.deployment_enabled

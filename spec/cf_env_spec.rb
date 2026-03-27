@@ -1,16 +1,13 @@
 # frozen_string_literal: true
-
 require 'spec_helper'
 
 RSpec.describe "cf-env app", type: :feature, js: true, if: Config.cf_env_enabled do
-  before(:all) do
-    @kubectl = KUBECTL.new()
-  end
+  let(:kubectl) { Kubectl.new }
 
   context 'when enabled' do
     it "exists" do
       wait_until(60,10) {
-        deployments = @kubectl.get_deployments('cf-env')
+        deployments = kubectl.get_deployments('cf-env')
         expect(deployments).to_not be_nil
 
         deployments.map! { |deployment| deployment['metadata']['name'] }
@@ -19,10 +16,10 @@ RSpec.describe "cf-env app", type: :feature, js: true, if: Config.cf_env_enabled
     end
 
     it "has running pods" do
-      @kubectl.wait_for_deployment('cf-env', '120s', 'cf-env')
+      kubectl.wait_for_deployment('cf-env', '120s', 'cf-env')
 
       wait_until(120,15) {
-        pods = @kubectl.get_pods_by_label("app=cf-env", 'cf-env')
+        pods = kubectl.get_pods_by_label("app=cf-env", 'cf-env')
         expect(pods).to_not be_nil
         expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
@@ -39,7 +36,7 @@ RSpec.describe "cf-env app", type: :feature, js: true, if: Config.cf_env_enabled
 
     if Config.httproute_enabled
       it 'has an httproute' do
-        httproutes = @kubectl.get_httproutes('cf-env')
+        httproutes = kubectl.get_httproutes('cf-env')
         expect(httproutes).to_not be_nil
 
         httproutes.map! { |httproute| httproute['metadata']['name'] }
@@ -51,7 +48,7 @@ RSpec.describe "cf-env app", type: :feature, js: true, if: Config.cf_env_enabled
           wait_until(120,15) {
             # since the migration to envoy gateway all certificates are now in the same global namespace
             # gateway-api was designed by idiots ...
-            certificates = @kubectl.get_certificates('envoy-gateway-system')
+            certificates = kubectl.get_certificates('envoy-gateway-system')
             expect(certificates).to_not be_nil
             expect(certificates.count).to be >= 1
 
@@ -87,10 +84,11 @@ RSpec.describe "cf-env app", type: :feature, js: true, if: Config.cf_env_enabled
         context "when doing the login process" do
           before(:each) do
             visit "https://cf-env.#{Config.domain}/"
-            sleep 1
-            # TODO: fill out email and password inputs
-            # TODO: get data from secret in k8s
-            ---
+            sleep 2
+            expect(find_field(name: "user").value).to eq("")
+            expect(find_field(name: "password").value).to eq("")
+            fill_in "user", with: Config.grafana_username
+            fill_in "password", with: Config.grafana_password
             find('button[type="submit"]').click
             sleep 3 # unfortunately we have to wait here to make sure the login/javascript did their work
           end
