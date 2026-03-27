@@ -1,9 +1,19 @@
 # frozen_string_literal: true
+require 'base64'
 require 'yaml'
 require_relative 'kubectl'
 
 module Config
   @@config = YAML.load_file('config.yml')
+  @@static_user = nil
+
+  def self.static_user
+    @@static_user ||= begin
+      kubectl = ::Kubectl.new
+      secret = kubectl.get_object('secret', 'static-user', 'dex')
+      secret
+    end
+  end
 
   def self.tmp_path
     return '/tmp' if @@config['tmp_path'] == nil
@@ -27,7 +37,11 @@ module Config
   end
 
   def self.static_username
-    kubectl = Kubectl.new
+    Base64.decode64(static_user['data']['email'])
+  end
+
+  def self.static_password
+    Base64.decode64(static_user['data']['password'])
   end
 
   def self.deployment_enabled
@@ -166,5 +180,4 @@ module Config
   def self.lets_encrypt_staging
     lets_encrypt_server == "https://acme-staging-v02.api.letsencrypt.org/directory"
   end
-
 end

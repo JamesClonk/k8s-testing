@@ -89,9 +89,17 @@ class Kubectl
     httproutes['items']
   end
 
+  def get_deployment(deployment_name, namespace = Config.namespace, allow_failure: false)
+    get_object("deploy", deployment_name, namespace, allow_failure: allow_failure)
+  end
+
   def get_deployments(namespace = Config.namespace, allow_failure: false)
     deployments = get_objects("deploy", namespace, allow_failure: allow_failure)
     deployments['items']
+  end
+
+  def get_pod(pod_name, namespace = Config.namespace, allow_failure: false)
+    get_object("pod", pod_name, namespace, allow_failure: allow_failure)
   end
 
   def get_pods(namespace = Config.namespace, allow_failure: false)
@@ -107,6 +115,15 @@ class Kubectl
   def get_labels(obj_type, obj_name, namespace = Config.namespace, allow_failure: false)
     labels = get_object(obj_type, obj_name, namespace, allow_failure: allow_failure)
     labels['metadata']['labels']
+  end
+
+  def get_secret(secret_name, namespace = Config.namespace, allow_failure: false)
+    get_object("secret", secret_name, namespace, allow_failure: allow_failure)
+  end
+
+  def get_secrets(namespace = Config.namespace, allow_failure: false)
+    secrets = get_objects("secret", namespace, allow_failure: allow_failure)
+    secrets['items']
   end
 
   def get_object(obj_type, obj_name, namespace = Config.namespace, allow_failure: false)
