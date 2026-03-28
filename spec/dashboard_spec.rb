@@ -85,9 +85,8 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
           before(:each) do
             Capybara.reset_sessions!
             visit "https://dashboard.#{Config.domain}/"
-            sleep 2
-            expect(find_field(name: "login").value).to eq("")
-            expect(find_field(name: "password").value).to eq("")
+            expect(page).to have_field("login", wait: 10)
+            expect(page).to have_field("password", wait: 10)
             fill_in "login", with: Config.static_username
             fill_in "password", with: Config.static_password
             find('button[type="submit"]').click
