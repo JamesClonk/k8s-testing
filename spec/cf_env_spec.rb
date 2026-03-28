@@ -83,6 +83,7 @@ RSpec.describe "cf-env app", type: :feature, js: true, if: Config.cf_env_enabled
 
         context "when doing the login process" do
           before(:each) do
+            Capybara.reset_sessions!
             visit "https://cf-env.#{Config.domain}/"
             sleep 2
             expect(find_field(name: "login").value).to eq("")
