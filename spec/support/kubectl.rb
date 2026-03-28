@@ -126,6 +126,11 @@ class Kubectl
     secrets['items']
   end
 
+  def get_secrets_by_label(label, namespace = Config.namespace, allow_failure: false)
+    secrets = get_objects_by_label("secret", label, namespace, allow_failure: allow_failure)
+    secrets['items']
+  end
+
   def get_object(obj_type, obj_name, namespace = Config.namespace, allow_failure: false)
     YAML.load(run("-n #{namespace} get #{obj_type} #{obj_name} -o yaml", allow_failure: allow_failure))
   end

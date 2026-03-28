@@ -1,17 +1,26 @@
 # frozen_string_literal: true
 require 'base64'
 require 'yaml'
+require 'json'
 require_relative 'kubectl'
 
 module Config
   @@config = YAML.load_file('config.yml')
   @@static_user = nil
+  @@backman_config_json = nil
 
   def self.static_user
     @@static_user ||= begin
       kubectl = ::Kubectl.new
-      secret = kubectl.get_object('secret', 'static-user', 'dex')
-      secret
+      kubectl.get_secret('static-user', 'dex')
+    end
+  end
+
+  def self.backman_config_json
+    @@backman_config_json ||= begin
+      kubectl = ::Kubectl.new
+      secret = kubectl.get_secrets_by_label('app.kubernetes.io/component=secret', 'backman')[0]
+      JSON.parse(Base64.decode64(secret['data']['config.json']))
     end
   end
 
@@ -42,6 +51,14 @@ module Config
 
   def self.static_password
     Base64.decode64(static_user['data']['password'])
+  end
+
+  def self.backman_username
+    backman_config_json['username']
+  end
+
+  def self.backman_password
+    backman_config_json['password']
   end
 
   def self.deployment_enabled
