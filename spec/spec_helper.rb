@@ -58,3 +58,15 @@ RSpec::Matchers.define :include_regex do |regex|
     actual.find { |str| str =~ regex }
   end
 end
+
+def visit_and_login(url)
+  Capybara.reset_sessions!
+  visit url
+  if page.has_field?("login", wait: 5)
+    expect(page).to have_field("password", wait: 5)
+    fill_in "login", with: Config.static_username
+    fill_in "password", with: Config.static_password
+    find('button[type="submit"]').click
+    sleep 3 # unfortunately we have to wait here to make sure the login/javascript did their work
+  end
+end

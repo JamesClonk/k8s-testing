@@ -82,19 +82,8 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
         end
 
         context "when doing the login process" do
-          before(:each) do
-            Capybara.reset_sessions!
-            visit "https://dashboard.#{Config.domain}/"
-            expect(page).to have_field("login", wait: 10)
-            expect(page).to have_field("password", wait: 10)
-            fill_in "login", with: Config.static_username
-            fill_in "password", with: Config.static_password
-            find('button[type="submit"]').click
-            sleep 3 # unfortunately we have to wait here to make sure the login/javascript did their work
-          end
-
           it "is logged-in" do
-            visit "https://dashboard.#{Config.domain}/"
+            visit_and_login "https://dashboard.#{Config.domain}/"
             wait_until(15,3) {
               expect(page.html).to include('<meta name="description" content="Headlamp: Kubernetes Web UI">')
               expect(page.html).to include('<title>default - Cluster</title>')
@@ -107,7 +96,7 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
           end
 
           it "displays nodes" do
-            visit "https://dashboard.#{Config.domain}/c/default/nodes"
+            visit_and_login "https://dashboard.#{Config.domain}/c/default/nodes"
             wait_until(15,3) {
               expect(page).to have_content 'kubernetes'
               expect(page).to have_content 'control-plane'
@@ -116,7 +105,7 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
           end
 
           it "displays deployments" do
-            visit "https://dashboard.#{Config.domain}/c/default/deployments"
+            visit_and_login "https://dashboard.#{Config.domain}/c/default/deployments"
             wait_until(15,3) {
               expect(page).to have_content 'home-info'
               expect(page).to have_content 'moviedb-frontend'
@@ -126,7 +115,7 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
           end
 
           it "displays deployment details" do
-            visit "https://dashboard.#{Config.domain}/c/default/deployments/jcio/jcio-frontend"
+            visit_and_login "https://dashboard.#{Config.domain}/c/default/deployments/jcio/jcio-frontend"
             wait_until(15,3) {
               expect(page).to have_content 'jcio-frontend'
               expect(page).to have_content 'app.kubernetes.io/component: jcio-frontend'
@@ -137,7 +126,7 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
 
           if Config.grafana_enabled
             it "displays replica sets" do
-              visit "https://dashboard.#{Config.domain}/c/default/replicasets?namespace=grafana"
+              visit_and_login "https://dashboard.#{Config.domain}/c/default/replicasets?namespace=grafana"
               wait_until(15,3) {
                 expect(page).to have_content 'Replica Sets'
                 expect(page).to have_content 'index.docker.io/grafana/grafana'
@@ -149,7 +138,7 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
 
           if Config.loki_enabled
             it "displays stateful sets" do
-              visit "https://dashboard.#{Config.domain}/c/default/statefulsets?namespace=loki"
+              visit_and_login "https://dashboard.#{Config.domain}/c/default/statefulsets?namespace=loki"
               wait_until(15,3) {
                 expect(page).to have_content 'Stateful Sets'
                 expect(page).to have_content 'loki'
@@ -160,7 +149,7 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
 
           if Config.prometheus_enabled
             it "displays services" do
-              visit "https://dashboard.#{Config.domain}/c/default/services?namespace=prometheus"
+              visit_and_login "https://dashboard.#{Config.domain}/c/default/services?namespace=prometheus"
               wait_until(15,3) {
                 expect(page).to have_content 'Services'
                 expect(page).to have_content 'prometheus-server'
@@ -176,7 +165,7 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
 
           if Config.lets_encrypt_enabled
             it "displays service accounts" do
-              visit "https://dashboard.#{Config.domain}/c/default/serviceaccounts?namespace=cert-manager"
+              visit_and_login "https://dashboard.#{Config.domain}/c/default/serviceaccounts?namespace=cert-manager"
               wait_until(15,3) {
                 expect(page).to have_content 'Service Accounts'
                 expect(page).to have_content 'cert-manager'
@@ -186,7 +175,7 @@ RSpec.describe "dashboard app", type: :feature, js: true, if: Config.dashboard_e
             end
 
             it "displays custom resources" do
-              visit "https://dashboard.#{Config.domain}/c/default/customresources/clusterissuers.cert-manager.io"
+              visit_and_login "https://dashboard.#{Config.domain}/c/default/customresources/clusterissuers.cert-manager.io"
               wait_until(15,3) {
                 expect(page).to have_content 'clusterissuers.cert-manager.io'
                 expect(page).to have_content 'letsencrypt-prod'

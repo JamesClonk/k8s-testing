@@ -82,19 +82,8 @@ RSpec.describe "cf-env app", type: :feature, js: true, if: Config.cf_env_enabled
         end
 
         context "when doing the login process" do
-          before(:each) do
-            Capybara.reset_sessions!
-            visit "https://cf-env.#{Config.domain}/"
-            expect(page).to have_field("login", wait: 10)
-            expect(page).to have_field("password", wait: 10)
-            fill_in "login", with: Config.static_username
-            fill_in "password", with: Config.static_password
-            find('button[type="submit"]').click
-            sleep 3 # unfortunately we have to wait here to make sure the login/javascript did their work
-          end
-
           it "is logged-in" do
-            visit "https://cf-env.#{Config.domain}/"
+            visit_and_login "https://cf-env.#{Config.domain}/"
             wait_until(15,3) {
               expect(page.html).to include('<title>Cloud Foundry Environment</title>')
               expect(page).to have_content 'Cloud Foundry Environment'
