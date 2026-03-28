@@ -97,7 +97,7 @@ RSpec.describe "backman app", type: :feature, js: true, if: Config.backman_enabl
             }
           end
 
-          it "displays movie_db backups" do
+          it "displays the database overview" do
             visit_and_login "https://backman.#{Config.domain}/service/postgres/movie_db"
             page.driver.browser.navigate.to "https://#{Config.backman_username}:#{Config.backman_password}@backman.#{Config.domain}/service/postgres/movie_db"
             wait_until(15,3) {
@@ -106,9 +106,39 @@ RSpec.describe "backman app", type: :feature, js: true, if: Config.backman_enabl
               expect(page).to have_content 'Filename'
               expect(page).to have_content 'Last Modified'
               expect(page).to have_content 'Create Backup'
-              expect(page).to have_content 'movie_db_20260323134205.gz'
-              #expect(page).to have_content(/movie_db_#{(Date.today - 1).strftime('%Y%m%d')}\d{6}.gz/)
-              #expect(page).to have_content(/movie_db_#{(Date.today - 2).strftime('%Y%m%d')}\d{6}.gz/)
+            }
+          end
+
+          it "queries movie_db backups via API call" do
+            visit_and_login "https://backman.#{Config.domain}/api/v1/backup/postgres/movie_db"
+            page.driver.browser.navigate.to "https://#{Config.backman_username}:#{Config.backman_password}@backman.#{Config.domain}/api/v1/backup/postgres/movie_db"
+            wait_until(15,3) {
+              expect(page).to have_content 'movie_db'
+              expect(page).to have_content(/movie_db_#{(Date.today - 1).strftime('%Y%m%d')}\d{6}.gz/)
+              expect(page).to have_content(/movie_db_#{(Date.today - 2).strftime('%Y%m%d')}\d{6}.gz/)
+              expect(page).to have_content(/movie_db_#{(Date.today - 3).strftime('%Y%m%d')}\d{6}.gz/)
+            }
+          end
+
+          it "queries irvisualizer_db backups via API call" do
+            visit_and_login "https://backman.#{Config.domain}/api/v1/backup/postgres/irvisualizer_db"
+            page.driver.browser.navigate.to "https://#{Config.backman_username}:#{Config.backman_password}@backman.#{Config.domain}/api/v1/backup/postgres/irvisualizer_db"
+            wait_until(15,3) {
+              expect(page).to have_content 'irvisualizer_db'
+              expect(page).to have_content(/irvisualizer_db_#{(Date.today - 1).strftime('%Y%m%d')}\d{6}.gz/)
+              expect(page).to have_content(/irvisualizer_db_#{(Date.today - 2).strftime('%Y%m%d')}\d{6}.gz/)
+              expect(page).to have_content(/irvisualizer_db_#{(Date.today - 3).strftime('%Y%m%d')}\d{6}.gz/)
+            }
+          end
+
+          it "queries home_info_db backups via API call" do
+            visit_and_login "https://backman.#{Config.domain}/api/v1/backup/postgres/home_info_db"
+            page.driver.browser.navigate.to "https://#{Config.backman_username}:#{Config.backman_password}@backman.#{Config.domain}/api/v1/backup/postgres/home_info_db"
+            wait_until(15,3) {
+              expect(page).to have_content 'home_info_db'
+              expect(page).to have_content(/home_info_db_#{(Date.today - 1).strftime('%Y%m%d')}\d{6}.gz/)
+              expect(page).to have_content(/home_info_db_#{(Date.today - 2).strftime('%Y%m%d')}\d{6}.gz/)
+              expect(page).to have_content(/home_info_db_#{(Date.today - 3).strftime('%Y%m%d')}\d{6}.gz/)
             }
           end
         end
