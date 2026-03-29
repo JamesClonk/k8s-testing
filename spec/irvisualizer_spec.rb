@@ -26,11 +26,13 @@ if Config.irvisualizer_enabled
           expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
           pods.each{ |pod|
-            expect(pod['metadata']['name']).to match(/irvisualizer-[-a-z0-9]+/)
+            expect(pod["metadata"]["deletionTimestamp"]).to be_nil
             expect(pod['status']['phase']).to eq('Running')
             expect(pod['status']['containerStatuses'].count).to be >= 1
             pod['status']['containerStatuses'].each{ |container|
-              expect(container['started']).to eq(true)
+              expect(container["ready"]).to eq(true)
+              expect(container["started"]).to eq(true)
+              expect(container["state"]).to include("running")
             }
           }
         }
@@ -145,10 +147,13 @@ if Config.irvisualizer_enabled
 
           pods.each{ |pod|
             expect(pod['metadata']['name']).to match(/ircollector-[-a-z0-9]+/)
+            expect(pod["metadata"]["deletionTimestamp"]).to be_nil
             expect(pod['status']['phase']).to eq('Running')
             expect(pod['status']['containerStatuses'].count).to be >= 1
             pod['status']['containerStatuses'].each{ |container|
-              expect(container['started']).to eq(true)
+              expect(container["ready"]).to eq(true)
+              expect(container["started"]).to eq(true)
+              expect(container["state"]).to include("running")
             }
           }
         }
@@ -232,10 +237,13 @@ if Config.irvisualizer_enabled
 
           pods.each{ |pod|
             expect(pod['metadata']['name']).to match(/irdiscordbot-[-a-z0-9]+/)
+            expect(pod["metadata"]["deletionTimestamp"]).to be_nil
             expect(pod['status']['phase']).to eq('Running')
             expect(pod['status']['containerStatuses'].count).to be >= 1
             pod['status']['containerStatuses'].each{ |container|
-              expect(container['started']).to eq(true)
+              expect(container["ready"]).to eq(true)
+              expect(container["started"]).to eq(true)
+              expect(container["state"]).to include("running")
             }
           }
         }

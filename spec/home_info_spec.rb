@@ -28,10 +28,13 @@ if Config.home_info_enabled
 
           pods.each{ |pod|
             expect(pod['metadata']['name']).to match(/home-info-[-a-z0-9]+/)
+            expect(pod["metadata"]["deletionTimestamp"]).to be_nil
             expect(pod['status']['phase']).to eq('Running')
             expect(pod['status']['containerStatuses'].count).to be >= 1
             pod['status']['containerStatuses'].each{ |container|
-              expect(container['started']).to eq(true)
+              expect(container["ready"]).to eq(true)
+              expect(container["started"]).to eq(true)
+              expect(container["state"]).to include("running")
             }
           }
         }

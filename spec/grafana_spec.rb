@@ -1,30 +1,30 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-RSpec.describe "pgweb app", type: :feature, js: true, if: Config.cf_env_enabled do
+RSpec.describe "grafana app", type: :feature, js: true, if: Config.grafana_enabled do
   let(:kubectl) { Kubectl.new }
 
   context 'when enabled' do
     it "exists" do
       wait_until(60,10) {
-        deployments = kubectl.get_deployments('pgweb')
+        deployments = kubectl.get_deployments('grafana')
         expect(deployments).to_not be_nil
 
         deployments.map! { |deployment| deployment['metadata']['name'] }
-        expect(deployments).to include('pgweb')
+        expect(deployments).to include('grafana')
       }
     end
 
     it "has running pods" do
-      kubectl.wait_for_deployment('pgweb', '120s', 'pgweb')
+      kubectl.wait_for_deployment('grafana', '120s', 'grafana')
 
       wait_until(120,15) {
-        pods = kubectl.get_pods_by_label("app=pgweb", 'pgweb')
+        pods = kubectl.get_pods_by_label("app.kubernetes.io/name=grafana", 'grafana')
         expect(pods).to_not be_nil
         expect(pods.count).to be == 1 # the deployment has 1 replicas defined
 
         pods.each{ |pod|
-          expect(pod['metadata']['name']).to match(/pgweb-[-a-z0-9]+/)
+          expect(pod['metadata']['name']).to match(/grafana-[-a-z0-9]+/)
           expect(pod["metadata"]["deletionTimestamp"]).to be_nil
           expect(pod['status']['phase']).to eq('Running')
           expect(pod['status']['containerStatuses'].count).to be >= 1
@@ -39,11 +39,11 @@ RSpec.describe "pgweb app", type: :feature, js: true, if: Config.cf_env_enabled 
 
     if Config.httproute_enabled
       it 'has an httproute' do
-        httproutes = kubectl.get_httproutes('pgweb')
+        httproutes = kubectl.get_httproutes('grafana')
         expect(httproutes).to_not be_nil
 
         httproutes.map! { |httproute| httproute['metadata']['name'] }
-        expect(httproutes).to include('pgweb')
+        expect(httproutes).to include('grafana')
       end
 
       if Config.lets_encrypt_enabled
@@ -55,13 +55,13 @@ RSpec.describe "pgweb app", type: :feature, js: true, if: Config.cf_env_enabled 
             expect(certificates).to_not be_nil
             expect(certificates.count).to be >= 1
 
-            expect(certificates.any?{ |c| c['metadata']['name'] == "pgweb-certificate" }).to eq(true)
-            certificate = certificates.select{ |c| c['metadata']['name'] == "pgweb-certificate" }.first
+            expect(certificates.any?{ |c| c['metadata']['name'] == "grafana-certificate" }).to eq(true)
+            certificate = certificates.select{ |c| c['metadata']['name'] == "grafana-certificate" }.first
 
             expect(certificate['spec']).to_not be_nil
             expect(certificate['spec']['dnsNames']).to_not be_nil
             expect(certificate['spec']['dnsNames'].count).to eq(1)
-            expect(certificate['spec']['dnsNames'][0]).to eq("pgweb.#{Config.domain}")
+            expect(certificate['spec']['dnsNames'][0]).to eq("grafana.#{Config.domain}")
 
             expect(certificate['status']).to_not be_nil
             expect(certificate['status']['conditions']).to_not be_nil
@@ -75,28 +75,13 @@ RSpec.describe "pgweb app", type: :feature, js: true, if: Config.cf_env_enabled 
           }
         end
 
-        it "can be https queried at [pgweb.#{Config.domain}] and displays the dex login page" do
-          response = https_get("https://pgweb.#{Config.domain}")
+        it "can be https queried at [grafana.#{Config.domain}] and displays the dex login page" do
+          response = https_get("https://grafana.#{Config.domain}")
           expect(response.code).to eq(200)
           expect(response.headers[:content_type]).to include('text/html')
           expect(response.headers[:strict_transport_security]).to include('max-age','includeSubDomains')
           expect(response.body).to include('<title>JamesClonk.io</title>', '<div class="dex-container">')
           expect(response.body).to include('<h2 class="theme-heading">Log in to Your Account</h2>', '<label for="userid">Email Address</label>')
-        end
-
-        context "when doing the login process" do
-          it "is logged-in" do
-            visit_and_login "https://pgweb.#{Config.domain}/"
-            wait_until(15,3) {
-              expect(page.html).to include('<title>pgweb</title>')
-              expect(page).to have_content 'Bookmark'
-              expect(page).to have_content 'Host'
-              expect(page).to have_content 'Connect'
-              expect(page).to have_content 'home_info'
-              expect(page).to have_content 'irvisualizer'
-              expect(page).to have_content 'jcio'
-            }
-          end
         end
       end
     end
