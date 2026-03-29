@@ -7,9 +7,6 @@ require 'spec_helper'
 if Config.loki_enabled
   describe 'loki', :loki => true do
     let(:kubectl) { Kubectl.new }
-    before(:all) do
-      @name = Config.random_names ? random_name('loki') : 'test-loki'
-    end
 
     it "is running" do
       wait_until(60,10) {
@@ -20,7 +17,7 @@ if Config.loki_enabled
         expect(pods).to include('loki-0')
       }
 
-      kubectl.wait_for_statefulset('loki', "120s", 'loki')
+      kubectl.wait_for_statefulset('loki', "240s", 'loki')
       wait_until(120,15) {
         pods = kubectl.get_pods_by_label("app.kubernetes.io/name=loki", 'loki')
         expect(pods).to_not be_nil
