@@ -48,6 +48,11 @@ class Kubectl
     command_runner.run("kill #{pid}")
   end
 
+  def raw_service(path, service, port, namespace = Config.namespace, allow_failure: false)
+    path = "/#{path}" unless path.match(/^\/.*$/)
+    run("get --raw '/api/v1/namespaces/#{namespace}/services/#{service}:#{port}/proxy#{path}'", allow_failure: allow_failure)
+  end
+
   def wait_for_deployment(deployment, wait_time = "120s", namespace = Config.namespace, allow_failure: false)
     run("wait --for condition=available deploy/#{deployment} --timeout=#{wait_time} -n #{namespace}", allow_failure: allow_failure)
     run("-n #{namespace} rollout status deploy/#{deployment} --timeout=#{wait_time}", allow_failure: allow_failure)
