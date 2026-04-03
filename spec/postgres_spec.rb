@@ -94,15 +94,19 @@ if Config.postgres_enabled
 
           runner = CommandRunner::Runner.new
           runner.run("mc alias set pgbackup #{s3_endpoint} #{s3_access_key} #{s3_secret_key} --api S3v4")
-          result = runner.run("mc ls pgbackup/#{s3_bucket}/pgbackup/")
+          result = runner.run("mc ls --json pgbackup/#{s3_bucket}/pgbackup/")
           expect(result).to_not be_nil
 
-          lines = result.strip.split("\n").select { |line| line.match?(/\d{4}-\d{2}-\d{2}/) }
-          expect(lines.count).to be >= 1
+          entries = result.strip.split("\n").map { |line| JSON.parse(line) }
+          expect(entries.count).to be >= 3
 
           # check that the latest file is not older than 2 days
-          latest = lines.map { |line| Date.parse(line.strip.split(' ')[0]) }.max
-          expect(latest).to be >= (Date.today - 2)
+          latest_date = entries.map { |e| Date.parse(e['lastModified']) }.max
+          expect(latest_date).to be >= (Date.today - 2)
+
+          # check that the latest file is bigger than 100MB
+          latest_entry = entries.max_by { |e| Time.parse(e['lastModified']) }
+          expect(latest_entry['size']).to be > 100 * 1024 * 1024
         }
       end
     end
