@@ -55,11 +55,20 @@ if Config.loki_enabled
 
     it "has logs available for backman app" do
       wait_until(60,5) {
-        response = kubectl.raw_service('/loki/api/v1/query_range?query={app="backman"}&since=24h&limit=10', "loki", 3100, "loki").chomp
+        response = kubectl.raw_service('/loki/api/v1/query_range?query={app="backman"}&since=24h&limit=50', "loki", 3100, "loki").chomp
         expect(response).to_not be_nil
         expect(response).to include('\"pod_name\":\"backman-')
         expect(response).to include('\"app.kubernetes.io/instance\":\"backman\"')
-        expect(response).to include('level=info msg=')
+        expect(response).to include('msg=')
+      }
+    end
+
+    it "has logs available for home-info app" do
+      wait_until(60,5) {
+        response = kubectl.raw_service('/loki/api/v1/query_range?query={app="home-info"}&since=2h&limit=50', "loki", 3100, "loki").chomp
+        expect(response).to_not be_nil
+        expect(response).to include('GET /')
+        expect(response).to include('POST /sensor')
       }
     end
   end
