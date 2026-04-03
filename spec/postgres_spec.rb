@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'date'
 require 'spec_helper'
 
 if Config.postgres_enabled
@@ -76,6 +77,33 @@ if Config.postgres_enabled
           pod_name = pods.first['metadata']['name']
           result = kubectl.exec_command(pod_name, "pg_isready -h #{db_host} -p #{db_port} -U #{db_user}", 'postgres')
           expect(result).to include('accepting connections')
+        }
+      end
+
+      it "has recent files in the s3 backup bucket" do
+        wait_until(120,15) {
+          secrets = kubectl.get_secrets_by_label('app.kubernetes.io/component=secret', 'postgres')
+          expect(secrets).to_not be_nil
+          expect(secrets.count).to be >= 2
+
+          secret = secrets.select { |i| i['metadata']['name'].include?('pgbackup') }.first
+          s3_endpoint = Base64.decode64(secret['data']['S3_ENDPOINT']).strip
+          s3_bucket = Base64.decode64(secret['data']['S3_BUCKET']).strip
+          s3_access_key = Base64.decode64(secret['data']['S3_ACCESS_KEY']).strip
+          s3_secret_key = Base64.decode64(secret['data']['S3_SECRET_KEY']).strip
+
+          runner = CommandRunner::Runner.new
+          runner.run("mc alias set pgbackup #{s3_endpoint} #{s3_access_key} #{s3_secret_key} --api S3v4")
+          result = runner.run("mc ls pgbackup/#{s3_bucket}/pgbackup/")
+          expect(result).to_not be_nil
+          puts result
+
+          lines = result.strip.split("\n").select { |line| line.match?(/\d{4}-\d{2}-\d{2}/) }
+          expect(lines.count).to be >= 1
+
+          # check that the latest file is not older than 2 days
+          latest = lines.map { |line| Date.parse(line.strip.split(' ')[0]) }.max
+          expect(latest).to be >= (Date.today - 2)
         }
       end
     end
