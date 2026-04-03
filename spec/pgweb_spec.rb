@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-RSpec.describe "pgweb app", type: :feature, js: true, if: Config.cf_env_enabled do
+RSpec.describe "pgweb app", type: :feature, js: true, if: Config.pgweb_enabled do
   let(:kubectl) { Kubectl.new }
 
   context 'when enabled' do

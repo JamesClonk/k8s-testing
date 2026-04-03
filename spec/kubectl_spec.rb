@@ -17,7 +17,13 @@ describe 'kubectl', :client => true, :fast => true do
     expect(namespaces.count).to be > 1
 
     namespaces.map! { |namespace| namespace['metadata']['name'] }
-    expect(namespaces).to include("kube-system", "pgweb", "postgres")
+    expect(namespaces).to include("kube-system")
+    if Config.pgweb_enabled
+      expect(namespaces).to include("pgweb")
+    end
+    if Config.postgres_enabled
+      expect(namespaces).to include("postgres")
+    end
     if Config.dashboard_enabled
       expect(namespaces).to include("headlamp")
     end

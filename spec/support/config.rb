@@ -117,6 +117,20 @@ module Config
     @@config['loki']['enabled']
   end
 
+  def self.pgweb_enabled
+    return true if @@config['pgweb'] == nil
+    return true if @@config['pgweb']['enabled'] == nil
+    return true if @@config['pgweb']['enabled'].to_s.empty?
+    @@config['pgweb']['enabled']
+  end
+
+  def self.postgres_enabled
+    return true if @@config['postgres'] == nil
+    return true if @@config['postgres']['enabled'] == nil
+    return true if @@config['postgres']['enabled'].to_s.empty?
+    @@config['postgres']['enabled']
+  end
+
   def self.longhorn_enabled
     return false if @@config['longhorn'] == nil
     return false if @@config['longhorn']['enabled'] == nil

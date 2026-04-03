@@ -103,6 +103,15 @@ class Kubectl
     deployments['items']
   end
 
+  def get_statefulset(statefulset_name, namespace = Config.namespace, allow_failure: false)
+    get_object("statefulset", statefulset_name, namespace, allow_failure: allow_failure)
+  end
+
+  def get_statefulsets(namespace = Config.namespace, allow_failure: false)
+    statefulsets = get_objects("statefulset", namespace, allow_failure: allow_failure)
+    statefulsets['items']
+  end
+
   def get_pod(pod_name, namespace = Config.namespace, allow_failure: false)
     get_object("pod", pod_name, namespace, allow_failure: allow_failure)
   end
@@ -120,6 +129,15 @@ class Kubectl
   def get_labels(obj_type, obj_name, namespace = Config.namespace, allow_failure: false)
     labels = get_object(obj_type, obj_name, namespace, allow_failure: allow_failure)
     labels['metadata']['labels']
+  end
+
+  def get_service(service_name, namespace = Config.namespace, allow_failure: false)
+    get_object("service", service_name, namespace, allow_failure: allow_failure)
+  end
+
+  def get_services(namespace = Config.namespace, allow_failure: false)
+    services = get_objects("service", namespace, allow_failure: allow_failure)
+    services['items']
   end
 
   def get_secret(secret_name, namespace = Config.namespace, allow_failure: false)
