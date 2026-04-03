@@ -96,7 +96,6 @@ if Config.postgres_enabled
           runner.run("mc alias set pgbackup #{s3_endpoint} #{s3_access_key} #{s3_secret_key} --api S3v4")
           result = runner.run("mc ls pgbackup/#{s3_bucket}/pgbackup/")
           expect(result).to_not be_nil
-          puts result
 
           lines = result.strip.split("\n").select { |line| line.match?(/\d{4}-\d{2}-\d{2}/) }
           expect(lines.count).to be >= 1
