@@ -4,25 +4,26 @@ require 'spec_helper'
 
 if Config.deployment_enabled
   describe 'a kubernetes deployment', :deployment => true do
+    let(:kubectl) { Kubectl.new }
+
     before(:all) do
-      @kubectl = KUBECTL.new()
       @name = Config.random_names ? random_name('deployment') : 'test-deployment'
     end
 
     context 'when deployed' do
       before(:all) do
-        deploy = @kubectl.deploy(name: @name, filename: 'spec/assets/deployment.yml')
+        deploy = kubectl.deploy(name: @name, filename: 'spec/assets/deployment.yml')
       end
       after(:all) do
-        delete = @kubectl.delete(name: @name, filename: 'spec/assets/deployment.yml')
+        delete = kubectl.delete(name: @name, filename: 'spec/assets/deployment.yml')
 
-        deployments = @kubectl.get_deployments
+        deployments = kubectl.get_deployments
         expect(deployments).to_not include(@name)
       end
 
       it "exists" do
         wait_until(60,10) {
-          deployments = @kubectl.get_deployments
+          deployments = kubectl.get_deployments
           expect(deployments).to_not be_nil
 
           deployments.map! { |deployment| deployment['metadata']['name'] }
@@ -31,10 +32,10 @@ if Config.deployment_enabled
       end
 
       it "has running pods" do
-        @kubectl.wait_for_deployment(@name)
+        kubectl.wait_for_deployment(@name)
 
         wait_until(240,15) {
-          pods = @kubectl.get_pods_by_label("app=#{@name}")
+          pods = kubectl.get_pods_by_label("app=#{@name}")
           expect(pods).to_not be_nil
           expect(pods.count).to be >= 2 # the deployment has 2 replicas defined
 
@@ -56,12 +57,12 @@ if Config.deployment_enabled
         context 'with an httproute' do
           before(:all) do
             @httproute_filename = 'spec/assets/httproute.yml'
-            deploy = @kubectl.deploy(name: @name, filename: @httproute_filename)
+            deploy = kubectl.deploy(name: @name, filename: @httproute_filename)
           end
           after(:all) do
-            delete = @kubectl.delete(name: @name, filename: @httproute_filename)
+            delete = kubectl.delete(name: @name, filename: @httproute_filename)
 
-            httproutes = @kubectl.get_httproutes
+            httproutes = kubectl.get_httproutes
             expect(httproutes).to_not include(@name)
           end
 
@@ -71,7 +72,7 @@ if Config.deployment_enabled
                 wait_until(240,15) {
                   # since the migration to envoy gateway all certificates are now in the same global namespace
                   # gateway-api was designed by idiots ...
-                  certificates = @kubectl.get_certificates('envoy-gateway-system')
+                  certificates = kubectl.get_certificates('envoy-gateway-system')
                   expect(certificates).to_not be_nil
                   expect(certificates.count).to be >= 1
 

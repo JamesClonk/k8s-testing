@@ -5,7 +5,7 @@ require 'json'
 require_relative 'kubectl'
 
 module Config
-  @@config = YAML.load_file('config.yml')
+  @@config = YAML.load_file('config.yaml')
   @@static_user = nil
   @@backman_config_json = nil
 
@@ -62,9 +62,9 @@ module Config
   end
 
   def self.deployment_enabled
-    return true if @@config['deployment'] == nil
-    return true if @@config['deployment']['enabled'] == nil
-    return true if @@config['deployment']['enabled'].to_s.empty?
+    return false if @@config['deployment'] == nil
+    return false if @@config['deployment']['enabled'] == nil
+    return false if @@config['deployment']['enabled'].to_s.empty?
     @@config['deployment']['enabled']
   end
 
@@ -118,16 +118,16 @@ module Config
   end
 
   def self.longhorn_enabled
-    return true if @@config['longhorn'] == nil
-    return true if @@config['longhorn']['enabled'] == nil
-    return true if @@config['longhorn']['enabled'].to_s.empty?
+    return false if @@config['longhorn'] == nil
+    return false if @@config['longhorn']['enabled'] == nil
+    return false if @@config['longhorn']['enabled'].to_s.empty?
     @@config['longhorn']['enabled']
   end
 
   def self.pvc_enabled
-    return true if @@config['pvc'] == nil
-    return true if @@config['pvc']['enabled'] == nil
-    return true if @@config['pvc']['enabled'].to_s.empty?
+    return false if @@config['pvc'] == nil
+    return false if @@config['pvc']['enabled'] == nil
+    return false if @@config['pvc']['enabled'].to_s.empty?
     @@config['pvc']['enabled']
   end
 
