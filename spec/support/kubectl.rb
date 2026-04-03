@@ -28,7 +28,7 @@ class Kubectl
     command_runner.run(cmd, allow_failure: allow_failure)
   end
 
-  def exec_command(pod, namespace = Config.namespace, allow_failure: false)
+  def exec_command(pod, command, namespace = Config.namespace, allow_failure: false)
     run("-n #{namespace} exec -it #{pod} -- /bin/bash -c '#{command}'", allow_failure: allow_failure)
   end
 

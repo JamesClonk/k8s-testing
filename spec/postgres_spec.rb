@@ -57,6 +57,27 @@ if Config.postgres_enabled
           expect(secrets.count).to be >= 2
         }
       end
+
+      it "accepts database connections" do
+        wait_until(120,15) {
+          secrets = kubectl.get_secrets_by_label('app.kubernetes.io/component=secret', 'postgres')
+          expect(secrets).to_not be_nil
+          expect(secrets.count).to be >= 2
+
+          secret = secrets.select { |i| i['metadata']['name'].include?('postgres') }.first
+          db_host = Base64.decode64(secret['data']['DB_HOST'])
+          db_port = Base64.decode64(secret['data']['DB_PORT'])
+          db_user = Base64.decode64(secret['data']['DB_USER'])
+
+          pods = kubectl.get_pods_by_label("app=postgres,app.kubernetes.io/component=database", 'postgres')
+          expect(pods).to_not be_nil
+          expect(pods.count).to be >= 1
+
+          pod_name = pods.first['metadata']['name']
+          result = kubectl.exec_command(pod_name, "pg_isready -h #{db_host} -p #{db_port} -U #{db_user}", 'postgres')
+          expect(result).to include('accepting connections')
+        }
+      end
     end
   end
 end
