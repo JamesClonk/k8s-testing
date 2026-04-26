@@ -180,6 +180,13 @@ module Config
     @@config['resume']['enabled']
   end
 
+  def self.kaizagaden_enabled
+    return true if @@config['kaizagaden'] == nil
+    return true if @@config['kaizagaden']['enabled'] == nil
+    return true if @@config['kaizagaden']['enabled'].to_s.empty?
+    @@config['kaizagaden']['enabled']
+  end
+
   def self.repo_mirrorer_enabled
     return true if @@config['repo_mirrorer'] == nil
     return true if @@config['repo_mirrorer']['enabled'] == nil
